@@ -9,7 +9,7 @@ Installation
 
 ### Install with composer
 ```
-composer require sqli/sqli-eztoolbox:dev-master
+composer require sqli/eztoolbox:dev-master
 ```
 
 ### Register the bundle
