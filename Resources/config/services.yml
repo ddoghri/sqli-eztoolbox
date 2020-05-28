@@ -16,7 +16,7 @@ services:
         tags:
             - { name: twig.extension }
 
-    SQLI\CommandsToolboxBundle\QueryType\:
+    SQLI\EzToolboxBundle\QueryType\:
         resource: ../../QueryType/
         tags:
             - { name: ezpublish.query_type }
