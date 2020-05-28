@@ -1,0 +1,55 @@
+{% extends viewbaseLayout is defined ? viewbaseLayout : '@ezdesign/layout.html.twig' %}
+
+{% form_theme form with '@SQLIEzToolboxBundle/form_fields.html.twig' only %}
+
+{% trans_default_domain 'sqli_admin' %}
+
+{% block breadcrumbs %}
+    {% set keytrad = constant('SQLI\\EzToolboxBundle\\Menu\\MenuListener::SQLI_ADMIN_MENU_ENTITIES_TAB_PREFIX') ~ tabname %}
+    {% include '@EzPlatformAdminUi/parts/breadcrumbs.html.twig' with { items: [
+        { value: 'breadcrumb.admin'|trans(domain='messages')|desc('Admin') },
+        { value: keytrad|trans( {}, 'sqli_admin' )|desc('Entity'),
+            url: path( 'sqli_eztoolbox_entitymanager_homepage', { 'tabname': tabname } ) },
+        { value: fqcn,
+            url: path( 'sqli_eztoolbox_entitymanager_entity_homepage', { 'fqcn': fqcn } ) },
+        { value: 'entity.button.alt.create'|trans },
+    ]} %}
+{% endblock %}
+
+{% block title %}{{ 'entity.creation.page.title'|trans|desc('Entity page title') }}{% endblock %}
+
+{% block page_title %}
+    {% include '@EzPlatformAdminUi/parts/page_title.html.twig' with {
+        title: 'entity.creation.page.title'|trans|desc('Entity page title'),
+        iconName: 'object-state'
+    } %}
+{% endblock %}
+
+{% block content %}
+    <div class="row align-items-stretch ez-main-row">
+        {% block left_sidebar %}{% endblock left_sidebar %}
+        <div class="container px-0 pb-4 mt-3 ez-content-edit-container">
+            {{ form_start(form, {'attr': {'class': 'ez-form-validate'}}) }}
+
+            {% for field in form.children if not field.rendered %}
+                {{ form_row(field) }}
+            {% endfor %}
+
+            {{ form_end(form) }}
+        </div>
+        {% block right_sidebar_wrapper %}
+            <div class="col-sm-1 pt-4 px-0 bg-secondary ez-context-menu">
+                <div class="ez-sticky-container">
+                    {% set content_type_edit_sidebar_right = knp_menu_get('sqli_eztoolbox.admin.edit_element.sidebar_right',
+                        [],
+                        {
+                            'save_button_name': form.children.submit.vars.id,
+                            'cancel_url': path( 'sqli_eztoolbox_entitymanager_entity_homepage', { 'fqcn': fqcn } )
+                        }
+                        ) %}
+                    {{ knp_menu_render(content_type_edit_sidebar_right, {'template': '@ezdesign/parts/menu/sidebar_right.html.twig'}) }}
+                </div>
+            </div>
+        {% endblock %}
+    </div>
+{% endblock %}

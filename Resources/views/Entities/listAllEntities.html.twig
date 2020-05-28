@@ -1,0 +1,72 @@
+{% extends 'EzPlatformAdminUiBundle::layout.html.twig' %}
+
+{% trans_default_domain 'sqli_admin' %}
+
+{% block breadcrumbs %}
+    {% set keytrad = constant('SQLI\\EzToolboxBundle\\Menu\\MenuListener::SQLI_ADMIN_MENU_ENTITIES_TAB_PREFIX') ~ tabname %}
+    {% include '@EzPlatformAdminUi/parts/breadcrumbs.html.twig' with { items: [
+        { value: 'breadcrumb.admin'|trans(domain='messages')|desc('Admin') },
+        { value: keytrad|trans( {}, 'sqli_admin' )|desc('Entities') },
+    ]} %}
+{% endblock %}
+
+{% block title %}{{ 'entities.page.title'|trans|desc('Entities page title') }}{% endblock %}
+
+{% block page_title %}
+    {% include '@EzPlatformAdminUi/parts/page_title.html.twig' with {
+        title: 'entities.page.title'|trans|desc('Entities page title'),
+        iconName: 'object-state'
+    } %}
+{% endblock %}
+
+{% block content %}
+    <section class="container my-4">
+        <div class="ez-table-header">
+            <div class="ez-table-header__headline">{{ "entities.list.table.header"|trans }}</div>
+        </div>
+        {% if classes|length == 0 %}
+            <p class="alert alert-warning">{{ 'entities.list.table.no_entities_configured'|trans }}</p>
+        {% else %}
+            <table class="table">
+                <thead>
+                <tr>
+                    <th>{{ 'entities.list.table.column_header.classname'|trans }}</th>
+                    <th>{{ 'entities.list.table.column_header.description'|trans }}</th>
+                    <th>{{ 'entities.list.table.column_header.total_elements'|trans }}</th>
+                </tr>
+                </thead>
+                <tbody>
+                    {% for fqcn, class_infos in classes %}
+                        <tr>
+                            <td>
+                                <span title="{{ block('class_annotation_properties') }}">
+                                    {% if is_granted( 'ez:sqli_admin:entity_show' ) %}
+                                        <a href="{{ path( 'sqli_eztoolbox_entitymanager_entity_homepage',
+                                            {'fqcn': fqcn}) }}">{{ class_infos.classname }}
+                                        </a>
+                                    {% else %}
+                                        {{ class_infos.classname }}
+                                    {% endif %}
+                                </span>
+                            </td>
+                            <td>
+                                {{ class_infos.annotation.description }}
+                            </td>
+                            <td>{{ class_infos.count }}</td>
+                        </tr>
+                    {% endfor %}
+                </tbody>
+            </table>
+        {% endif %}
+        {#{{ pagerfanta(articles, 'ez') }}#}
+    </section>
+{% endblock %}
+
+{% block class_annotation_properties %}
+{{ fqcn }}
+
+{{ 'entities.list.table.span_title.properties'|trans }}
+{% for property_name, property_infos in class_infos.properties %}
+    {% if property_infos.accessibility == "private" %}- {% elseif property_infos.accessibility == "protected" %}# {% else %}+ {% endif %}{{ property_name }}
+{% endfor %}
+{% endblock %}

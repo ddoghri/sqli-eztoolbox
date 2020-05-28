@@ -1,0 +1,193 @@
+{% extends 'EzPlatformAdminUiBundle::layout.html.twig' %}
+
+{% trans_default_domain 'sqli_admin' %}
+
+{% block breadcrumbs %}
+    {% set keytrad = constant('SQLI\\EzToolboxBundle\\Menu\\MenuListener::SQLI_ADMIN_MENU_ENTITIES_TAB_PREFIX') ~ class.annotation.tabname %}
+    {% include '@EzPlatformAdminUi/parts/breadcrumbs.html.twig' with { items: [
+        { value: 'breadcrumb.admin'|trans(domain='messages')|desc('Admin') },
+        { value: keytrad|trans( {}, 'sqli_admin' )|desc('Entities'),
+            url: path( 'sqli_eztoolbox_entitymanager_homepage', { 'tabname': class.annotation.tabname } ) },
+        { value: class.classname }
+    ]} %}
+{% endblock %}
+
+{% block title %}{{ 'entity.page.title'|trans|desc('Entity page title') }}{% endblock %}
+
+{% block page_title %}
+    {% include '@EzPlatformAdminUi/parts/page_title.html.twig' with {
+        title: 'entity.page.title'|trans|desc('Entity page title'),
+        iconName: 'object-state'
+    } %}
+{% endblock %}
+
+{% block content %}
+    <section class="container my-4">
+        {# Filters filter_form #}
+        {{ form_start( filter_form ) }}
+        <table class="table ez-table--list">
+            <thead>
+            <tr>
+                <th class="ez-table__cell ez-table__cell--header" colspan="4">Filtre</th>
+            </tr>
+            </thead>
+            <tbody>
+            <tr class="ez-table__row">
+                <td>
+                    {{ form_widget( filter_form.column_name ) }}
+                </td>
+                <td>
+                    {{ form_widget( filter_form.operand ) }}
+                </td>
+                <td>
+                    {{ form_widget( filter_form.value ) }}
+                </td>
+                <td>
+                    {{ form_widget( filter_form.filter ) }}
+                    <a class="btn"
+                       href="{{ path('sqli_eztoolbox_entitymanager_entity_homepage_reset_filter', {'fqcn': fqcn}) }}">
+                        {{ 'entity.button.label.reset'|trans( {}, 'sqli_admin' ) }}
+                    </a>
+                </td>
+            </tr>
+            </tbody>
+        </table>
+        {{ form_end( filter_form ) }}
+
+        <div class="ez-table-header">
+            <div class="ez-table-header__headline">
+                {{ "entity.elements.table.header"|trans({'%fqcn%': fqcn})|raw }}
+            </div>
+            <div>
+                {{ block( 'sqli_entity_export_csv') }}
+                {{ block( 'sqli_entity_create_element') }}
+            </div>
+        </div>
+        {% if pager.currentPageResults|length == 0 %}
+            <p class="alert alert-warning">{{ 'entity.elements.table.no_elements'|trans }}</p>
+        {% else %}
+            <table class="table">
+                <thead>
+                <tr>
+                    {% for property_name, property_infos in class.properties %}
+                        {% if property_infos.visible is same as(true) %}
+                            <th>
+                                <span title="{{ property_infos.accessibility }}" class="d-inline-flex">
+                                    {# Sort ASC #}
+                                    <a href="{{ path('sqli_eztoolbox_entitymanager_entity_homepage',
+                                        {
+                                            'fqcn': fqcn,
+                                            'sort_column': property_name,
+                                            'sort_order': 'ASC'
+                                        }) }}">
+                                        <svg class="ez-icon ez-icon-caret-up" style="width: 1.5rem;height: 1.5rem;">
+                                            <use xmlns:xlink="http://www.w3.org/1999/xlink"
+                                                 xlink:href="/bundles/ezplatformadminui/img/ez-icons.svg#caret-up"></use>
+                                        </svg>
+                                    </a>
+                                    {{ property_name }}
+                                    {# Sort DESC #}
+                                    <a href="{{ path('sqli_eztoolbox_entitymanager_entity_homepage',
+                                        {
+                                            'fqcn': fqcn,
+                                            'sort_column': property_name,
+                                            'sort_order': 'DESC'
+                                        }) }}">
+                                        <svg class="ez-icon ez-icon-caret-down" style="width: 1.5rem;height: 1.5rem;">
+                                            <use xmlns:xlink="http://www.w3.org/1999/xlink"
+                                                 xlink:href="/bundles/ezplatformadminui/img/ez-icons.svg#caret-down"></use>
+                                        </svg>
+                                    </a>
+                                </span>
+                            </th>
+                        {% endif %}
+                    {% endfor %}
+                    <th>
+                        {{ 'entity.elements.table.column_header.operations'|trans }}
+                    </th>
+                </tr>
+                </thead>
+                <tbody>
+                {% for element in pager.currentPageResults %}
+                    {{ block( 'sqli_entity_element' ) }}
+                {% endfor %}
+                </tbody>
+            </table>
+        {% endif %}
+        {{ pagerfanta(pager, 'ez') }}
+    </section>
+{% endblock %}
+
+{% block sqli_entity_element %}
+    {# Generate compound ID #}
+    {% set compound_id = [] %}
+    {% for column_name in class.primary_key %}
+        {% set compound_id = compound_id|merge( { (column_name): sqli_admin_attribute( element, column_name ) } ) %}
+    {% endfor %}
+    {% set compound_id = compound_id|json_encode %}
+
+    <tr>
+        {% for property_name, property_infos in class.properties %}
+            {% if property_infos.visible is same as(true) %}
+                {% set value = sqli_admin_attribute( element, property_name ) %}
+                {# If column flagged as extra link then column's value will be used as ID ... #}
+                {% if property_infos.extra_link == "content" %}
+                    <td><a href="{{ path( '_ez_content_view', { 'contentId': value } ) }}">{{ value }}</a></td>
+                {% elseif property_infos.extra_link == "location" %}
+                    <td><a href="{{ path( '_ezpublishLocation', { 'locationId': value } ) }}">{{ value }}</a></td>
+                {% elseif property_infos.extra_link == "tag" and bundle_exists( 'NetgenTagsBundle' ) %}
+                    <td><a href="{{ path('netgen_tags_admin_tag_show', { 'tagId': value }) }}">{{ value }}</a></td>
+                {% else %}
+                    {# ... else, just display the value #}
+                    <td>{{ value }}</td>
+                {% endif %}
+            {% endif %}
+        {% endfor %}
+        <td>
+            {% if class.annotation.update and is_granted( 'ez:sqli_admin:entity_edit_element' ) %}
+                <a href="{{ path( 'sqli_eztoolbox_entitymanager_entity_edit_element',
+                    { 'fqcn': fqcn, 'compound_id': compound_id }) }}">
+                    <svg class="ez-icon ez-icon-edit" style="width: 1.5rem;height: 1.5rem;">
+                        <use xmlns:xlink="http://www.w3.org/1999/xlink"
+                             xlink:href="/bundles/ezplatformadminui/img/ez-icons.svg#edit"></use>
+                    </svg>
+                </a>
+            {% endif %}
+            {% if class.annotation.delete and is_granted( 'ez:sqli_admin:entity_remove_element' ) %}
+                <a href="{{ path( 'sqli_eztoolbox_entitymanager_entity_remove_element',
+                    { 'fqcn': fqcn, 'compound_id': compound_id }) }}">
+                    <svg class="ez-icon ez-icon-trash" style="width: 1.5rem;height: 1.5rem;">
+                        <use xmlns:xlink="http://www.w3.org/1999/xlink"
+                             xlink:href="/bundles/ezplatformadminui/img/ez-icons.svg#trash"></use>
+                    </svg>
+                </a>
+            {% endif %}
+        </td>
+    </tr>
+{% endblock %}
+
+{% block sqli_entity_create_element %}
+    {% if class.annotation.create and is_granted( 'ez:sqli_admin:entity_create_element' ) %}
+        <a title="{{ 'entity.button.alt.create'|trans|desc('Create a new line') }}"
+           href="{{ path( 'sqli_eztoolbox_entitymanager_entity_create_element',
+               { 'fqcn': fqcn } ) }}"
+           class="btn btn-primary">
+            <svg class="ez-icon ez-icon-create">
+                <use xlink:href="{{ asset('bundles/ezplatformadminui/img/ez-icons.svg') }}#create"></use>
+            </svg>
+        </a>
+    {% endif %}
+{% endblock %}
+
+{% block sqli_entity_export_csv %}
+    {% if class.annotation.csv_exportable and is_granted( 'ez:sqli_admin:entity_export_csv' ) %}
+        <a title="{{ 'entity.button.alt.export_csv'|trans|desc('Export into CSV file') }}"
+           href="{{ path( 'sqli_eztoolbox_entitymanager_entity_export_csv',
+               { 'fqcn': fqcn } ) }}"
+           class="btn btn-primary">
+            <svg class="ez-icon ez-icon-form-data">
+                <use xlink:href="{{ asset('bundles/ezplatformadminui/img/ez-icons.svg') }}#form-data"></use>
+            </svg>
+        </a>
+    {% endif %}
+{% endblock %}
