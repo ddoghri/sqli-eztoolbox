@@ -1,5 +1,5 @@
 {
-  "name": "sqli/sqli-eztoolbox",
+  "name": "sqli/eztoolbox",
   "description": "SQLI eZToolbox is a bundle used in SQLI projects gathering some bundles like \"SQLI Entities Manager\", \"SQLI ContentType Installer\", \"SQLI Command Toolbox\", some helpers and some Twig operators",
   "keywords": ["sqli", "ezplatform", "crud", "entities"],
   "homepage": "https://github.com/DocDams/sqli-eztoolbox",
@@ -8,6 +8,10 @@
     {
       "name": "SQLI",
       "homepage": "http://www.sqli.com"
+    },
+    {
+      "name": "VERNER Damien",
+      "email": "daverner@sqli.com"
     }
   ],
   "license": [
