@@ -29,16 +29,25 @@ class FilterType extends AbstractType
                        [
                            'choices' => array_combine( array_keys( $classInformations['properties'] ),
                                                        array_keys( $classInformations['properties'] ) ),
+                           'attr' =>
+                               [
+                                   'class' => "form-control",
+                               ],
                        ] );
 
         $builder->add( "operand", ChoiceType::class,
                        [
                            'choices' => Filter::OPERANDS_MAPPING,
+                           'attr' =>
+                               [
+                                   'class' => "form-control",
+                               ],
                        ] );
         $builder->add( "value", TextType::class,
                        [
                            'attr' =>
                                [
+                                   'class' => "form-control",
                                    'placeholder' => $this->translator->trans( "entity.field.placeholder.value",
                                                                               [],
                                                                               "sqli_admin" )
@@ -50,6 +59,10 @@ class FilterType extends AbstractType
                            "label" => $this->translator->trans( "entity.button.label.filter",
                                                                 [],
                                                                 "sqli_admin" ),
+                           'attr' =>
+                               [
+                                   'class' => "btn-primary btn",
+                               ],
                        ] );
     }
 
