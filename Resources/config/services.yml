@@ -24,7 +24,7 @@ services:
     SQLI\EzToolboxBundle\Annotations\SQLIAnnotationManager:
         arguments:
             - "Entity"
-            - "%sqli_eztoolbox.entities%"
+            - "%sqli_ez_toolbox.entities%"
             - "%kernel.root_dir%"
             - "@annotation_reader"
 
