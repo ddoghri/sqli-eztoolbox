@@ -1,46 +1,27 @@
 services:
-    SQLI\EzToolboxBundle\Controller\:
-        resource: "../../Controller/*"
+    _defaults:
         autowire: true
         autoconfigure: true
         public: false
+
+    SQLI\EzToolboxBundle\Controller\:
+        resource: "../../Controller/*"
         exclude: "../../Controller/{Controller}"
 
     SQLI\EzToolboxBundle\Form\:
         resource: "../../Form/*"
-        autowire: true
-        autoconfigure: true
-        public: false
 
     SQLI\EzToolboxBundle\Services\Twig\:
         resource: '../../Services/Twig/*'
-        autowire: true
-        autoconfigure: true
-        public: false
         tags:
             - { name: twig.extension }
 
-    sqli_admin_entities:
-        class: SQLI\EzToolboxBundle\Services\EntityHelper
-        public: true
-        autowire: true
-        autoconfigure: true
+    SQLI\CommandsToolboxBundle\QueryType\:
+        resource: ../../QueryType/
+        tags:
+            - { name: ezpublish.query_type }
 
-    sqli_admin_tab_entities:
-        class: SQLI\EzToolboxBundle\Services\TabEntityHelper
-        public: true
-        autowire: true
-        autoconfigure: true
-
-    sqli_admin_filter_entity:
-        class: SQLI\EzToolboxBundle\Services\FilterEntityHelper
-        public: true
-        autowire: true
-        autoconfigure: true
-
-    sqli_admin_annotation_entities:
-        class: SQLI\EzToolboxBundle\Annotations\SQLIAnnotationManager
-        public: true
+    SQLI\EzToolboxBundle\Annotations\SQLIAnnotationManager:
         arguments:
             - "Entity"
             - "%sqli_eztoolbox.entities%"
@@ -48,4 +29,4 @@ services:
             - "@annotation_reader"
 
 parameters:
-    sqli_eztoolbox.entities: []
+    sqli_ez_toolbox.entities: []

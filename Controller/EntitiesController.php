@@ -9,6 +9,9 @@ use SQLI\EzToolboxBundle\Annotations\Annotation\Entity;
 use SQLI\EzToolboxBundle\Classes\Filter;
 use SQLI\EzToolboxBundle\Form\EntityManager\EditElementType;
 use SQLI\EzToolboxBundle\Form\EntityManager\FilterType;
+use SQLI\EzToolboxBundle\Services\EntityHelper;
+use SQLI\EzToolboxBundle\Services\FilterEntityHelper;
+use SQLI\EzToolboxBundle\Services\TabEntityHelper;
 use Symfony\Bundle\FrameworkBundle\Controller\Controller;
 use Symfony\Component\HttpFoundation\RedirectResponse;
 use Symfony\Component\HttpFoundation\Request;
@@ -20,15 +23,16 @@ class EntitiesController extends Controller
     /**
      * Display all entities annotated with SQLIAdmin\Entity
      *
-     * @param $tabname
+     * @param string          $tabname
+     * @param TabEntityHelper $tabEntityHelper
      * @return Response
      * @throws ReflectionException
      */
-    public function listAllEntitiesAction( $tabname )
+    public function listAllEntitiesAction( $tabname, TabEntityHelper $tabEntityHelper )
     {
         $this->denyAccessUnlessGranted( 'ez:sqli_admin:list_entities' );
 
-        $tabs              = $this->get( 'sqli_admin_tab_entities' )->entitiesGroupedByTab();
+        $tabs              = $tabEntityHelper->entitiesGroupedByTab();
         $params['tabname'] = $tabname;
         $params['classes'] = $tabs[$tabname];
 
@@ -38,18 +42,21 @@ class EntitiesController extends Controller
     /**
      * Display an entity (lines in SQL table)
      *
-     * @param string  $fqcn
-     * @param string  $sort_column
-     * @param string  $sort_order
-     * @param Request $request
+     * @param string             $fqcn
+     * @param string             $sort_column
+     * @param string             $sort_order
+     * @param Request            $request
+     * @param EntityHelper       $entityHelper
+     * @param FilterEntityHelper $filterEntityHelper
      * @return Response
      * @throws ReflectionException
      */
-    public function showEntityAction( $fqcn, $sort_column, $sort_order, Request $request )
+    public function showEntityAction( $fqcn, $sort_column, $sort_order, Request $request, EntityHelper $entityHelper,
+                                      FilterEntityHelper $filterEntityHelper )
     {
         $this->denyAccessUnlessGranted( 'ez:sqli_admin:entity_show' );
 
-        $classInformations = $this->get( 'sqli_admin_entities' )->getAnnotatedClass( $fqcn );
+        $classInformations = $entityHelper->getAnnotatedClass( $fqcn );
 
         $sort = [ 'column_name' => $sort_column, 'order' => $sort_order ];
 
@@ -62,14 +69,14 @@ class EntitiesController extends Controller
         if( $filterForm->isSubmitted() && $filterForm->isValid() )
         {
             // Set filter in session, it will be retrieved in getEntity()
-            $this->get( 'sqli_admin_filter_entity' )->setFilter( $fqcn, $filter );
+            $filterEntityHelper->setFilter( $fqcn, $filter );
             // Entity informations and all elements with sort (filter in session)
-            $params = $this->get( 'sqli_admin_entities' )->getEntity( $fqcn, true, $sort );
+            $params = $entityHelper->getEntity( $fqcn, true, $sort );
         }
         else
         {
             // Entity informations and all elements without any filter
-            $params = $this->get( 'sqli_admin_entities' )->getEntity( $fqcn, true, $sort );
+            $params = $entityHelper->getEntity( $fqcn, true, $sort );
         }
 
         // Generate filter form for the view
@@ -93,19 +100,20 @@ class EntitiesController extends Controller
     /**
      * Remove an element
      *
-     * @param $fqcn
-     * @param $compound_id string Compound primary key in JSON string
+     * @param              $fqcn
+     * @param              $compound_id string Compound primary key in JSON string
+     * @param EntityHelper $entityHelper
      * @return Response
      * @throws ReflectionException
      */
-    public function removeElementAction( $fqcn, $compound_id )
+    public function removeElementAction( $fqcn, $compound_id, EntityHelper $entityHelper )
     {
         $this->denyAccessUnlessGranted( 'ez:sqli_admin:entity_remove_element' );
 
         $removeSuccessfull = false;
 
         // Check if class annotation allow deletion
-        $entity = $this->get( 'sqli_admin_entities' )->getEntity( $fqcn, false );
+        $entity = $entityHelper->getEntity( $fqcn, false );
 
         if( array_key_exists( 'class', $entity ) && array_key_exists( 'annotation', $entity['class'] ) )
         {
@@ -122,7 +130,7 @@ class EntitiesController extends Controller
                     // If valid compound Id, remove element
                     if( !empty( $compound_id ) )
                     {
-                        $this->get( 'sqli_admin_entities' )->remove( $fqcn, $compound_id );
+                        $entityHelper->remove( $fqcn, $compound_id );
                         $removeSuccessfull = true;
                     }
                 }
@@ -156,12 +164,13 @@ class EntitiesController extends Controller
     /**
      * Delete filter for specified FQCN and redirect to entity view
      *
-     * @param $fqcn
+     * @param string             $fqcn
+     * @param FilterEntityHelper $filterEntityHelper
      * @return RedirectResponse
      */
-    public function resetFilterAction( $fqcn )
+    public function resetFilterAction( $fqcn, FilterEntityHelper $filterEntityHelper )
     {
-        $this->get( 'sqli_admin_filter_entity' )->resetFilter( $fqcn );
+        $filterEntityHelper->resetFilter( $fqcn );
 
         return $this->redirectToRoute( 'sqli_eztoolbox_entitymanager_entity_homepage',
                                        [ 'fqcn' => $fqcn ] );
@@ -170,20 +179,21 @@ class EntitiesController extends Controller
     /**
      * Show edit form and save modifications
      *
-     * @param string  $fqcn FQCN
-     * @param string  $compound_id Json format
-     * @param Request $request
+     * @param string       $fqcn FQCN
+     * @param string       $compound_id Json format
+     * @param Request      $request
+     * @param EntityHelper $entityHelper
      * @return RedirectResponse|Response
      * @throws ReflectionException
      */
-    public function editElementAction( $fqcn, $compound_id, Request $request )
+    public function editElementAction( $fqcn, $compound_id, Request $request, EntityHelper $entityHelper )
     {
         $this->denyAccessUnlessGranted( 'ez:sqli_admin:entity_edit_element' );
 
         $updateSuccessfull = false;
 
         // Check if class annotation allow modification
-        $entity = $this->get( 'sqli_admin_entities' )->getEntity( $fqcn, false );
+        $entity = $entityHelper->getEntity( $fqcn, false );
 
         if( array_key_exists( 'class', $entity ) && array_key_exists( 'annotation', $entity['class'] ) )
         {
@@ -201,7 +211,7 @@ class EntitiesController extends Controller
                     if( !empty( $compound_id ) )
                     {
                         // Find element
-                        $element = $this->get( 'sqli_admin_entities' )->findOneBy( $fqcn, $compound_id );
+                        $element = $entityHelper->findOneBy( $fqcn, $compound_id );
 
                         // Build form according to element and entity informations
                         $form = $this->createForm( EditElementType::class, $element, [ 'entity' => $entity ] );
@@ -258,19 +268,20 @@ class EntitiesController extends Controller
     /**
      * Show edit form and save modifications
      *
-     * @param string  $fqcn FQCN
-     * @param Request $request
+     * @param string       $fqcn FQCN
+     * @param Request      $request
+     * @param EntityHelper $entityHelper
      * @return RedirectResponse|Response
      * @throws ReflectionException
      */
-    public function createElementAction( $fqcn, Request $request )
+    public function createElementAction( $fqcn, Request $request, EntityHelper $entityHelper )
     {
         $this->denyAccessUnlessGranted( 'ez:sqli_admin:entity_edit_element' );
 
         $updateSuccessfull = false;
 
         // Check if class annotation allow modification
-        $entity = $this->get( 'sqli_admin_entities' )->getEntity( $fqcn, false );
+        $entity = $entityHelper->getEntity( $fqcn, false );
 
         if( array_key_exists( 'class', $entity ) && array_key_exists( 'annotation', $entity['class'] ) )
         {
@@ -335,14 +346,20 @@ class EntitiesController extends Controller
                                        [ 'fqcn' => $fqcn ] );
     }
 
-    public function exportCSVAction( $fqcn )
+    /**
+     * @param string       $fqcn
+     * @param EntityHelper $entityHelper
+     * @return StreamedResponse
+     * @throws ReflectionException
+     */
+    public function exportCSVAction( $fqcn, EntityHelper $entityHelper )
     {
         $this->denyAccessUnlessGranted( 'ez:sqli_admin:entity_export_csv' );
 
         $response = new StreamedResponse();
 
         // Check if class annotation allow CSV export
-        $entity = $this->get( 'sqli_admin_entities' )->getEntity( $fqcn, false );
+        $entity = $entityHelper->getEntity( $fqcn, false );
 
         if( array_key_exists( 'class', $entity ) && array_key_exists( 'annotation', $entity['class'] ) )
         {
@@ -354,7 +371,7 @@ class EntitiesController extends Controller
                 if( $entityAnnotation->isCSVExportable() )
                 {
                     // Find element
-                    $entityInformations = $this->get( 'sqli_admin_entities' )->getEntity( $fqcn, true );
+                    $entityInformations = $entityHelper->getEntity( $fqcn, true );
 
                     $response->setCallback( function() use ( $entityInformations )
                     {
@@ -380,7 +397,7 @@ class EntitiesController extends Controller
                             // Get value for each column
                             foreach( $columns as $column )
                             {
-                                $elementDatas[] = $this->get( 'sqli_admin_entities' )->attributeValue( $element, $column );
+                                $elementDatas[] = $entityHelper->attributeValue( $element, $column );
                             }
                             // Add line
                             fputcsv( $resource, $elementDatas );

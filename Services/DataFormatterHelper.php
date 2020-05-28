@@ -1,0 +1,218 @@
+<?php
+
+namespace SQLI\EzToolboxBundle\Services;
+
+use SQLI\EzToolboxBundle\Exceptions\DataFormatterException;
+
+/**
+ * Class DataFormatterHelper
+ * @package SQLI\EzToolboxBundle\Services
+ */
+class DataFormatterHelper
+{
+    public function __construct()
+    {
+    }
+
+    /**
+     * @param      $data
+     * @param      $format
+     * @param null $pattern
+     * @return string
+     */
+    public function format( $data, $format, $pattern = null )
+    {
+        switch( $format )
+        {
+            case "float":
+                return preg_replace( '#^([0-9\s]+),([0-9]+)$#', '$1.$2', $data );
+            case "amount":
+                $number = $this->format( $data, "float" );
+
+                return number_format( (float)$number, 2, ",", " " );
+            case "price":
+                $number = $this->format( $data, "amount" );
+
+                return "$number €";
+            case "french_date":
+                $pattern = is_null( $pattern ) ? 'l d F à H:i' : $pattern;
+                $data = $this->toDateTime( $data );
+
+                return $this->formatFrenchDate( $data, $pattern );
+            case "filesize":
+                $pattern = is_int( $pattern ) ? $pattern : 1;
+
+                return $this->human_filesize( $data, $pattern );
+            case "datetime":
+                return $this->toDateTime( $data );
+        }
+
+        throw new DataFormatterException( "Unknown format name : $format" );
+    }
+
+    /**
+     * Returns a DateTime object from a string
+     *
+     * @param \DateTime|string $date Date to convert
+     * @param mixed            $defaultReturn Value to return if cannot create a DateTime
+     * @return \DateTime|false
+     */
+    public function toDateTime( $date, $defaultReturn = false )
+    {
+        if( !$date instanceof \DateTime )
+        {
+            $date = (string)$date;
+
+            // Try to build DateTime with format d/m/Y
+            $dateTime = \DateTime::createFromFormat( "d/m/Y", $date, new \DateTimeZone( 'UTC' ) );
+
+            if( $dateTime === false )
+            {
+                // Try to build DateTime with format Y-m-d
+                $dateTime = \DateTime::createFromFormat( "Y-m-d", $date, new \DateTimeZone( 'UTC' ) );
+            }
+
+            if( $dateTime === false )
+            {
+                $date != "" ?: $date = "now";
+                try
+                {
+                    $dateTime = new \DateTime( $date, new \DateTimeZone( 'UTC' ) );
+                }
+                catch( \Exception $exception )
+                {
+                    $dateTime = $defaultReturn;
+                }
+            }
+        }
+        else
+        {
+            // Already a DateTime object
+            $dateTime = $date;
+        }
+
+        return $dateTime instanceof \DateTime ? $dateTime : $defaultReturn;
+    }
+
+    private function formatFrenchDate( $date, $pattern = null )
+    {
+        $monthEn = [
+            "January",
+            "February",
+            "March",
+            "April",
+            "May",
+            "June",
+            "July",
+            "August",
+            "September",
+            "October",
+            "November",
+            "December"
+        ];
+
+        $monthFr = [
+            "Janvier",
+            "Février",
+            "Mars",
+            "Avril",
+            "Mai",
+            "Juin",
+            "Juillet",
+            "Août",
+            "Septembre",
+            "Octobre",
+            "Novembre",
+            "Décembre"
+        ];
+
+        $dayFullEn = [
+            "Monday",
+            "Tuesday",
+            "Wednesday",
+            "Thursday",
+            "Friday",
+            "Saturday",
+            "Sunday",
+        ];
+
+        $dayFullFr = [
+            "Lundi",
+            "Mardi",
+            "Mercredi",
+            "Jeudi",
+            "Vendredi",
+            "Samedi",
+            "Dimanche",
+        ];
+
+        $dayEn = [
+            "Mon",
+            "Tue",
+            "Wed",
+            "Thu",
+            "Fri",
+            "Sat",
+            "Sun",
+            "Jan",
+            "Feb",
+            "Mar",
+            "Apr",
+            "May",
+            "Jun",
+            "Jul",
+            "Aug",
+            "Sep",
+            "Oct",
+            "Nov",
+            "Dec"
+        ];
+
+        $dayFr = [
+            "Lun",
+            "Mar",
+            "Mer",
+            "Jeu",
+            "Ven",
+            "Sam",
+            "Dim",
+            "Jan",
+            "Fév",
+            "Mar",
+            "Avr",
+            "Mai",
+            "Jui",
+            "Jui",
+            "Aoû",
+            "Sep",
+            "Oct",
+            "Nov",
+            "Déc"
+        ];
+
+        if( !$date instanceof \DateTime )
+        {
+            $date = new \DateTime( $date );
+        }
+
+        $dateFormatToFrensh = str_replace( $monthEn, $monthFr, $date->format( $pattern ) );
+        $dateFormatToFrensh = str_replace( $dayFullEn, $dayFullFr, $dateFormatToFrensh );
+
+        return str_replace( $dayEn, $dayFr, $dateFormatToFrensh );
+    }
+
+    /**
+     * Format filesize (in bytes) into human readable filesize
+     *
+     * @param     $bytes
+     * @param int $decimals
+     * @return string
+     */
+    private function human_filesize( $bytes, $decimals = 2 )
+    {
+        $sz     = [ "o", "Ko", "Mo", "Go", "To", "Po" ];
+        $factor = (int)floor( ( strlen( $bytes ) - 1 ) / 3 );
+
+        return sprintf( "%.{$decimals}f ", $bytes / pow( 1024, $factor ) ) . @$sz[$factor];
+    }
+}
