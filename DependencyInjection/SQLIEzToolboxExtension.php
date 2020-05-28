@@ -28,7 +28,7 @@ class SQLIEzToolboxExtension extends Extension
 
         foreach ($config as $key => $value)
         {
-            $container->setParameter('sqli_eztoolbox.'.$key, $value);
+            $container->setParameter('sqli_ez_toolbox.'.$key, $value);
         }
     }
 }

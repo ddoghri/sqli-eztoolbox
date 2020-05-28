@@ -23,7 +23,7 @@ public function registerBundles()
 {
     $bundles = [
         // ...
-        new SQLI\EzToolboxBundle\SqliEzToolboxBundle(),
+        new SQLI\EzToolboxBundle\SQLIEzToolboxBundle(),
     ];
 }
 ```
@@ -52,7 +52,7 @@ php bin/console cache:clear
 Configure directories (and namespaces if not according to PSR-0 rules) entities to lookup :
 
 ```yml
-sqli_eztoolbox:
+sqli_ez_toolbox:
     entities:
         - { directory: 'Acme/AcmeBundle/Entity/Doctrine' }
         - { directory: 'Acme/AcmeBundle2/Entity/Doctrine', namespace: 'Acme\AcmeBundle2NoPSR0\ORM\Doctrine' }
