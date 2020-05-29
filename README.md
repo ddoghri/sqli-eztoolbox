@@ -1,4 +1,4 @@
-SQLI eZ Toolbox Bundle (test)
+SQLI eZ Toolbox Bundle
 ========================================
 
 [SQLI](http://www.sqli.com) eZToolbox is a bundle used in SQLI projects gathering some bundles like "SQLI Entities Manager", "SQLI ContentType Installer", "SQLI Command Toolbox", some helpers and some Twig operators
