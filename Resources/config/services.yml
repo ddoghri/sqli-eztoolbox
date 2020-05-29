@@ -30,3 +30,5 @@ services:
 
 parameters:
     sqli_ez_toolbox.entities: []
+    sqli_ez_toolbox.contenttype_installer.installation_directory: app/content_types
+    sqli_ez_toolbox.contenttype_installer.is_absolute_path: false

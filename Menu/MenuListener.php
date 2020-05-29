@@ -9,8 +9,9 @@ use Symfony\Component\Security\Core\Authorization\AuthorizationCheckerInterface;
 
 class MenuListener implements EventSubscriberInterface
 {
-    const SQLI_ADMIN_MENU_ROOT                = "sqli_admin__menu_root";
-    const SQLI_ADMIN_MENU_ENTITIES_TAB_PREFIX = "sqli_admin__menu_entities_tab__";
+    const SQLI_ADMIN_MENU_ROOT                  = "sqli_admin__menu_root";
+    const SQLI_ADMIN_MENU_ENTITIES_TAB_PREFIX   = "sqli_admin__menu_entities_tab__";
+    const SQLI_ADMIN_MENU_CONTENTTYPE_INSTALLER = "sqli_admin__menu_contenttypes_installer";
     /** @var AuthorizationCheckerInterface */
     private $authorizationChecker;
     /** @var TabEntityHelper */
@@ -38,6 +39,7 @@ class MenuListener implements EventSubscriberInterface
             ]
         )->setExtra('translation_domain', 'sqli_admin' );
 
+        // SQLI Entity Manager
         if( $this->authorizationChecker->isGranted( 'ez:sqli_admin:list_entities' ) )
         {
             // Read "tabname" entity's annotations to generate submenu items
@@ -53,6 +55,18 @@ class MenuListener implements EventSubscriberInterface
                     ]
                 )->setExtra('translation_domain', 'sqli_admin' );
             }
+        }
+
+        // SQLI ContentType Installer
+        if( $this->authorizationChecker->isGranted( 'ez:sqli_admin:content_type_installer' ) )
+        {
+            $menu[self::SQLI_ADMIN_MENU_ROOT]->addChild(
+                self::SQLI_ADMIN_MENU_CONTENTTYPE_INSTALLER,
+                [
+                    'label'              => self::SQLI_ADMIN_MENU_CONTENTTYPE_INSTALLER,
+                    'route'              => 'sqli_eztoolbox_contenttype_installer_list',
+                ]
+            )->setExtra('translation_domain', 'sqli_admin' );
         }
     }
 }

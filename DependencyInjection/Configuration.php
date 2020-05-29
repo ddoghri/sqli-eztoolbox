@@ -33,6 +33,12 @@ class Configuration implements ConfigurationInterface
                         ->end()
                     ->end()
                 ->end() // entities
+                ->arrayNode( 'contenttype_installer' )
+                    ->children()
+                        ->scalarNode( 'installation_directory' )->isRequired()->end()
+                        ->scalarNode( 'is_absolute_path' )->defaultFalse()->end()
+                    ->end()
+                ->end() // contenttype_installer
             ->end();
 
         return $treeBuilder;
