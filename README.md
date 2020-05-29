@@ -39,11 +39,9 @@ _sqli_eztoolbox:
     prefix: /
 ```
 
-### Assets
+### Clear cache
 
-Generate assets :
 ```bash
-php bin/console assetic:dump
 php bin/console cache:clear
 ```
 
@@ -58,6 +56,9 @@ sqli_ez_toolbox:
     entities:
         - { directory: 'Acme/AcmeBundle/Entity/Doctrine' }
         - { directory: 'Acme/AcmeBundle2/Entity/Doctrine', namespace: 'Acme\AcmeBundle2NoPSR0\ORM\Doctrine' }
+    contenttype_installer:
+        installation_directory: app/content_types
+        is_absolute_path: false
 ```
 Use "~" if the namespace of your classes observe PSR-0 rules or specify directory which contains them.
 
@@ -65,8 +66,10 @@ Use "~" if the namespace of your classes observe PSR-0 rules or specify director
 
 Default values :
 ```yml
-sqli_ez_toolbox.contenttype_installer.installation_directory: app/content_types
-sqli_ez_toolbox.contenttype_installer.is_absolute_path: false 
+sqli_ez_toolbox:
+    contenttype_installer:
+        installation_directory: app/content_types
+        is_absolute_path: false
 ```
 
 *(Optional) Change label tabname*
@@ -74,6 +77,7 @@ sqli_ez_toolbox.contenttype_installer.is_absolute_path: false
 You can change label of the default tab using this translation key for domain `sqli_admin` : **sqli_admin__menu_entities_tab__default**
 
 ### How to use
+
 [Entities Manager](README_entities_manager.md)
 
 [ContentTypes Installer](README_contenttype_installer.md)
