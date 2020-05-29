@@ -4,6 +4,9 @@ services:
         autoconfigure: true
         public: false
 
+    SQLI\EzToolboxBundle\Command\:
+        resource: "../../Command/*"
+
     SQLI\EzToolboxBundle\Controller\:
         resource: "../../Controller/*"
         exclude: "../../Controller/{Controller}"
@@ -27,8 +30,3 @@ services:
             - "%sqli_ez_toolbox.entities%"
             - "%kernel.root_dir%"
             - "@annotation_reader"
-
-parameters:
-    sqli_ez_toolbox.entities: []
-    sqli_ez_toolbox.contenttype_installer.installation_directory: app/content_types
-    sqli_ez_toolbox.contenttype_installer.is_absolute_path: false
