@@ -34,8 +34,9 @@ class Configuration implements ConfigurationInterface
                     ->end()
                 ->end() // entities
                 ->arrayNode( 'contenttype_installer' )
+                    ->addDefaultsIfNotSet()
                     ->children()
-                        ->scalarNode( 'installation_directory' )->isRequired()->end()
+                        ->scalarNode( 'installation_directory' )->isRequired()->defaultValue('app/content_types')->end()
                         ->scalarNode( 'is_absolute_path' )->defaultFalse()->end()
                     ->end()
                 ->end() // contenttype_installer
