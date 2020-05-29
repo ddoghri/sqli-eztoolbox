@@ -2,8 +2,6 @@
 
 namespace SQLI\EzToolboxBundle\Command;
 
-use Monolog\Handler\StreamHandler;
-use Monolog\Logger;
 use SQLI\EzToolboxBundle\Services\ExtractHelper;
 use Symfony\Bundle\FrameworkBundle\Command\ContainerAwareCommand;
 use Symfony\Component\Console\Input\InputArgument;
@@ -13,6 +11,15 @@ use Symfony\Component\Console\Output\OutputInterface;
 class ExtractContentTypeCommand extends ContainerAwareCommand
 {
     protected $log;
+    /** @var ExtractHelper */
+    protected $extractHelper;
+
+    public function __construct( ExtractHelper $extractHelper )
+    {
+        $this->extractHelper = $extractHelper;
+
+        parent::__construct('sqli:contentTypesInstaller:extract');
+    }
 
     /**
      * {@inheritdoc}
@@ -43,17 +50,12 @@ class ExtractContentTypeCommand extends ContainerAwareCommand
      */
     protected function execute( InputInterface $input, OutputInterface $output )
     {
-        $today     = date( "Y-m-d" );
-        $this->log = new Logger( 'ExtractContentTypesCommandLogger' );
-        $this->log->pushHandler( new StreamHandler( $this->getContainer()->get( 'kernel' )->getLogDir() . '/extract_content_types-' . $today . '.log' ) );
+        $output->writeln( "Debut de l'extract des content types" );
 
-        $this->log->addInfo( "Debut de l'extract des content types" );
-
-        $outputFilename        = $input->getArgument( 'filename' );
+        $outputFilename        = $this->getContainer()->getParameter( 'kernel.root_dir' ) . '/../'.
+                                 $input->getArgument( 'filename' );
         $identifierContentType = $input->getArgument( 'identifierContentType' );
-        $content               = $this->getContainer()
-            ->get( ExtractHelper::class )
-            ->createContentToExport( $identifierContentType, $this->log );
+        $content               = $this->extractHelper->createContentToExport( $identifierContentType, $output );
 
         //Ecriture du content type dans un fichier
         //TODO : Voir pour paramaettrer le nom et chemin du fichier de sortie
@@ -62,6 +64,6 @@ class ExtractContentTypeCommand extends ContainerAwareCommand
         fwrite( $fp, $content );
         fclose( $fp );
 
-        $this->log->addInfo( "Fin de l'extract des content types" );
+        $output->writeln( "Fin de l'extract des content types" );
     }
 }

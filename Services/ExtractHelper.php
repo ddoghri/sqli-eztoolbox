@@ -13,6 +13,7 @@ use eZ\Publish\API\Repository\Exceptions\NotFoundException;
 use eZ\Publish\API\Repository\Repository;
 use Monolog\Logger;
 use Netgen\TagsBundle\API\Repository\TagsService;
+use Symfony\Component\Console\Output\OutputInterface;
 use Symfony\Component\Yaml\Yaml;
 
 class ExtractHelper
@@ -29,13 +30,12 @@ class ExtractHelper
     }
 
     /**
-     * @param             $aExportedIdentifiers
-     * @param Logger|null $logger
-     * @param Repository  $repository
+     * @param                 $aExportedIdentifiers
+     * @param OutputInterface $output
      * @return string
      * @throws NotFoundException
      */
-    public function createContentToExport( $aExportedIdentifiers, $logger = null )
+    public function createContentToExport( $aExportedIdentifiers, OutputInterface $output = null )
     {
         $aContentType = [];
 
@@ -97,18 +97,18 @@ class ExtractHelper
             }
         }
 
-        $content = $this->createYMLFile( $aContentType, $logger );
+        $content = $this->createYMLFile( $aContentType, $output );
 
         return $content;
     }
 
     /**
-     * @param             $aContent
-     * @param Logger|null $logger
+     * @param array<string>   $aContent
+     * @param OutputInterface $output
      * @return string
      * @throws Exception
      */
-    public function createYMLFile( $aContent, $logger = null )
+    public function createYMLFile( $aContent, OutputInterface $output = null )
     {
         $content = "";
         foreach( $aContent as $contentType )
@@ -125,14 +125,14 @@ class ExtractHelper
             $content .= "\r\n";
             $content .= "    ";
             $content .= "datatypes:";
-            $content .= $this->extractDataTypesFromArrayToYML( $contentType['fieldDefinitions'], $logger );
+            $content .= $this->extractDataTypesFromArrayToYML( $contentType['fieldDefinitions'], $output );
             //Ajout de ce saut de ligne pour autre contentTypes
             $content .= "\r\n";
 
             $contentTypeIdentifierForLog = $contentType['identifier'];
-            if( !is_null( $logger ) )
+            if( !is_null( $output ) )
             {
-                $logger->addInfo( "Extract du contentType d'identifier $contentTypeIdentifierForLog" );
+                $output->writeln( "Extract du contentType d'identifier $contentTypeIdentifierForLog" );
             }
         }
 
@@ -210,12 +210,12 @@ class ExtractHelper
     }
 
     /**
-     * @param             $aFieldsDefinitions
-     * @param Logger|null $logger
+     * @param array<\stdClass> $aFieldsDefinitions
+     * @param OutputInterface  $output
      * @return string
      * @throws Exception
      */
-    public function extractDataTypesFromArrayToYML( $aFieldsDefinitions, $logger = null )
+    public function extractDataTypesFromArrayToYML( $aFieldsDefinitions, OutputInterface $output = null )
     {
         $sFieldsDefinitions = '';
         $spacesDataTypes    = '            ';
@@ -251,9 +251,9 @@ class ExtractHelper
                 case 'eztags':
                     if( $this->tagService == null )
                     {
-                        if( !is_null( $logger ) )
+                        if( !is_null( $output ) )
                         {
-                            $logger->addInfo( "netgen/tagsbundle is required to export eztags fields" );
+                            $output->writeln( "netgen/tagsbundle is required to export eztags fields" );
                         }
                         break;
                     }
@@ -262,9 +262,9 @@ class ExtractHelper
                     $tagsValueValidator = $fieldsDefinition->validatorConfiguration['TagsValueValidator'];
                     if( !isset( $tagsValueValidator['subTreeLimit'] ) )
                     {
-                        if( !is_null( $logger ) )
+                        if( !is_null( $output ) )
                         {
-                            $logger->addInfo( "invalid eztags field data" );
+                            $output->writeln( "invalid eztags field data" );
                         }
                         break;
                     }
