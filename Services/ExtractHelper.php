@@ -32,11 +32,12 @@ class ExtractHelper
     /**
      * @param                 $aExportedIdentifiers
      * @param OutputInterface $output
-     * @return string
+     * @return array
      * @throws NotFoundException
      */
     public function createContentToExport( $aExportedIdentifiers, OutputInterface $output = null )
     {
+        $content = [];
         $aContentType = [];
 
         $this->repository->setCurrentUser( $this->repository->getUserService()->loadUser( 14 ) );
@@ -62,7 +63,7 @@ class ExtractHelper
         }
         if( isset( $aExportedIdentifiers ) )
         {
-            foreach( $aExportedIdentifiers as $key => $exportedIdentifier )
+            foreach( $aExportedIdentifiers as $exportedIdentifier )
             {
                 if( is_numeric( $exportedIdentifier ) )
                 {
@@ -86,18 +87,18 @@ class ExtractHelper
                 $isContainer      = $contentType->isContainer;
                 unset( $contentType );
 
-                $aContentType[$key]['group_identifier'] = $groupIdentifier;
-                $aContentType[$key]['identifier']       = $identifier;
-                $aContentType[$key]['names']            = $names;
-                $aContentType[$key]['descriptions']     = $descriptions;
-                $aContentType[$key]['mainLanguageCode'] = $mainLanguageCode;
-                $aContentType[$key]['nameSchema']       = $nameSchema;
-                $aContentType[$key]['fieldDefinitions'] = $fieldDefinitions;
-                $aContentType[$key]['isContainer']      = $isContainer;
+                $aContentType['group_identifier'] = $groupIdentifier;
+                $aContentType['identifier']       = $identifier;
+                $aContentType['names']            = $names;
+                $aContentType['descriptions']     = $descriptions;
+                $aContentType['mainLanguageCode'] = $mainLanguageCode;
+                $aContentType['nameSchema']       = $nameSchema;
+                $aContentType['fieldDefinitions'] = $fieldDefinitions;
+                $aContentType['isContainer']      = $isContainer;
+
+                $content[$identifier] = $this->createYMLFile( $aContentType, $output );
             }
         }
-
-        $content = $this->createYMLFile( $aContentType, $output );
 
         return $content;
     }
@@ -108,32 +109,29 @@ class ExtractHelper
      * @return string
      * @throws Exception
      */
-    public function createYMLFile( $aContent, OutputInterface $output = null )
+    public function createYMLFile( $contentType, OutputInterface $output = null )
     {
         $content = "";
-        foreach( $aContent as $contentType )
-        {
-            //TODO : Mettre les champs à exporter dans un fichier de conf ?
-            $content .= $this->extractInfosForYML( $contentType['identifier'], '', '', true );
-            $content .= $this->extractInfosForYML( 'group_identifier', $contentType['group_identifier'], '    ' );
-            $content .= $this->extractInfosForYML( 'identifier', $contentType['identifier'], '    ' );
-            $content .= $this->extractInfosForYML( 'names', $contentType['names'], '    ' );
-            $content .= $this->extractInfosForYML( 'descriptions', $contentType['descriptions'], '    ' );
-            $content .= $this->extractInfosForYML( 'mainLanguageCode', $contentType['mainLanguageCode'], '    ' );
-            $content .= $this->extractInfosForYML( 'nameSchema', $contentType['nameSchema'], '    ' );
-            $content .= $this->extractInfosForYML( 'isContainer', $contentType['isContainer'], '    ' );
-            $content .= "\r\n";
-            $content .= "    ";
-            $content .= "datatypes:";
-            $content .= $this->extractDataTypesFromArrayToYML( $contentType['fieldDefinitions'], $output );
-            //Ajout de ce saut de ligne pour autre contentTypes
-            $content .= "\r\n";
+        //TODO : Mettre les champs à exporter dans un fichier de conf ?
+        $content .= $this->extractInfosForYML( $contentType['identifier'], '', '', true );
+        $content .= $this->extractInfosForYML( 'group_identifier', $contentType['group_identifier'], '    ' );
+        $content .= $this->extractInfosForYML( 'identifier', $contentType['identifier'], '    ' );
+        $content .= $this->extractInfosForYML( 'names', $contentType['names'], '    ' );
+        $content .= $this->extractInfosForYML( 'descriptions', $contentType['descriptions'], '    ' );
+        $content .= $this->extractInfosForYML( 'mainLanguageCode', $contentType['mainLanguageCode'], '    ' );
+        $content .= $this->extractInfosForYML( 'nameSchema', $contentType['nameSchema'], '    ' );
+        $content .= $this->extractInfosForYML( 'isContainer', $contentType['isContainer'], '    ' );
+        $content .= "\r\n";
+        $content .= "    ";
+        $content .= "datatypes:";
+        $content .= $this->extractDataTypesFromArrayToYML( $contentType['fieldDefinitions'], $output );
+        //Ajout de ce saut de ligne pour autre contentTypes
+        $content .= "\r\n";
 
-            $contentTypeIdentifierForLog = $contentType['identifier'];
-            if( !is_null( $output ) )
-            {
-                $output->writeln( "Extract du contentType d'identifier $contentTypeIdentifierForLog" );
-            }
+        $contentTypeIdentifierForLog = $contentType['identifier'];
+        if( !is_null( $output ) )
+        {
+            $output->writeln( "Extract du contentType d'identifier $contentTypeIdentifierForLog en ". $contentType['mainLanguageCode'] );
         }
 
         return $content;

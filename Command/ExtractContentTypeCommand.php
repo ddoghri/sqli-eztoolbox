@@ -18,7 +18,7 @@ class ExtractContentTypeCommand extends ContainerAwareCommand
     {
         $this->extractHelper = $extractHelper;
 
-        parent::__construct('sqli:contentTypesInstaller:extract');
+        parent::__construct( 'sqli:contentTypesInstaller:extract' );
     }
 
     /**
@@ -33,13 +33,13 @@ class ExtractContentTypeCommand extends ContainerAwareCommand
                 array(
                     new InputArgument(
                         'filename',
-                        InputArgument::REQUIRED,
-                        'output filename'
+                        InputArgument::OPTIONAL,
+                        'Output filename'
                     ),
                     new InputArgument(
                         'identifierContentType',
                         InputArgument::OPTIONAL,
-                        'identifier contentType to Extract'
+                        'Identifier contentType to extract'
                     )
                 )
             );
@@ -52,17 +52,38 @@ class ExtractContentTypeCommand extends ContainerAwareCommand
     {
         $output->writeln( "Debut de l'extract des content types" );
 
-        $outputFilename        = $this->getContainer()->getParameter( 'kernel.root_dir' ) . '/../'.
-                                 $input->getArgument( 'filename' );
         $identifierContentType = $input->getArgument( 'identifierContentType' );
-        $content               = $this->extractHelper->createContentToExport( $identifierContentType, $output );
+        $aContent              = $this->extractHelper->createContentToExport( $identifierContentType, $output );
 
-        //Ecriture du content type dans un fichier
-        //TODO : Voir pour paramaettrer le nom et chemin du fichier de sortie
-        //ouverture du fichier en mode écriture, création du fichier s'il n'existe pas.
-        $fp = fopen( $outputFilename, "w" );
-        fwrite( $fp, $content );
-        fclose( $fp );
+        // Retrieve parameters for filename
+        $outputPathname = $this->getContainer()->getParameter( 'sqli_ez_toolbox.contenttype_installer.installation_directory' );
+        $isAbsolutePath = $this->getContainer()->getParameter( 'sqli_ez_toolbox.contenttype_installer.is_absolute_path' );
+
+        if( !$isAbsolutePath )
+        {
+            // If not an absolute path, generate path from Symfony root dir
+            $outputPathname = $this->getContainer()->getParameter( 'kernel.root_dir' ) . '/../' . $outputPathname . '/';
+        }
+
+        if( $input->getArgument( 'filename' ) )
+        {
+            // If a filename specified in argument, write in this file
+            $outputFilename = $outputPathname . $input->getArgument( 'filename' );
+            // Clear file before first write
+            file_put_contents( $outputFilename, "" );
+        }
+
+        foreach( $aContent as $sIdentifierContentType => $content )
+        {
+            if( !$input->getArgument( 'filename' ) )
+            {
+                // No filename specified so write in separated file
+                $outputFilename = $outputPathname . $sIdentifierContentType . ".yml";
+                file_put_contents( $outputFilename, "" );
+            }
+
+            file_put_contents( $outputFilename, $content, FILE_APPEND );
+        }
 
         $output->writeln( "Fin de l'extract des content types" );
     }

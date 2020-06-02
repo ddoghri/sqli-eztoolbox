@@ -13,6 +13,7 @@ use eZ\Publish\Core\MVC\Symfony\Locale\LocaleConverter;
 use EzSystems\EzPlatformAdminUiBundle\Controller\Controller as BaseController;
 use SQLI\EzToolboxBundle\Services\ExtractHelper;
 use Symfony\Component\HttpFoundation\RequestStack;
+use Symfony\Component\HttpFoundation\Response;
 
 class ContentTypeInstallerController extends BaseController
 {
@@ -37,17 +38,29 @@ class ContentTypeInstallerController extends BaseController
 
     public function exportAction( ExtractHelper $extractHelper )
     {
-        $postVariables = $_POST;
-        $aExportedIds  = $postVariables['ExportIDArray'];
-        $content       = $extractHelper->createContentToExport( $aExportedIds );
+        $postVariables         = $_POST;
+        $aExportedIds          = $postVariables['ExportIDArray'];
+        $aExportedContentTypes = $extractHelper->createContentToExport( $aExportedIds );
 
-        header( 'Content-Type: force-download' );
-        header( 'Content-Disposition: attachment; filename="contentType.yml"' );
-        header( 'Pragma: no-cache' );
-        header( 'Expires: 0' );
+        $sResponseContent = "";
+        foreach( $aExportedContentTypes as $sExportedContentType )
+        {
+            $sResponseContent .= $sExportedContentType;
+        }
 
-        echo $content;
-        exit( 0 );
+        $headers  =
+            [
+                'Content-Type'        => 'force-download',
+                'Content-Disposition' => 'attachment; filename="contentType.yml"',
+                'Pragma'              => 'no-cache',
+                'Expires'             => '0',
+            ];
+        $response = new Response();
+        $response->headers->add( $headers );
+        $response->setContent( $sResponseContent );
+        $response->send();
+
+        return $this->redirectToRoute( "sqli_eztoolbox_contenttype_installer_list" );
     }
 
     public function indexAction( $name )

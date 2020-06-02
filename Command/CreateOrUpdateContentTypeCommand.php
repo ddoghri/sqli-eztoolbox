@@ -28,15 +28,18 @@ class CreateOrUpdateContentTypeCommand extends ContainerAwareCommand
     protected function configure()
     {
         //Prevision du cas du nom d'un fichier si on decide de traiter fichier par fichier ou si on traite tout d'un coup
-        $this->setName( 'sqli:contentTypesInstaller:create_or_update' )->setDefinition(
-            array(
-                new InputArgument(
-                    'filename',
-                    InputArgument::OPTIONAL,
-                    'name of the file which describe the class'
+        $this
+            ->setName( 'sqli:contentTypesInstaller:create_or_update' )
+            ->setDescription( "Create or update ContentTypes from yaml files" )
+            ->setDefinition(
+                array(
+                    new InputArgument(
+                        'filename',
+                        InputArgument::OPTIONAL,
+                        'name of the file which describe the class'
+                    )
                 )
-            )
-        );
+            );
     }
 
     protected function execute( InputInterface $input, OutputInterface $output )
