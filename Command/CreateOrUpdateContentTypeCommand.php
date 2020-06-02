@@ -71,7 +71,7 @@ class CreateOrUpdateContentTypeCommand extends ContainerAwareCommand
 
         if( isset( $fileName ) && $fileName != null )
         {
-            $aFiles = array( $fileName );
+            $aFiles = array( "$installationDirectory/$fileName" );
         }
 
         foreach( $aFiles as $file )
