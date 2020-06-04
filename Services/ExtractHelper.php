@@ -75,25 +75,29 @@ class ExtractHelper
                 $contentTypeGroups = $contentType->getContentTypeGroups();
                 //TODO : Voir si plus tard on peut faire autrement que prendre que le premier groupe
                 // On ne retourne alors que le premeir groupe auquel est associé le contentType
-                $contentTypeGroup = $contentTypeGroups[0];
-                $groupIdentifier  = $contentTypeGroup->identifier;
-                $identifier       = $contentType->identifier;
-                $names            = $contentType->getNames();
-                $descriptions     = $contentType->getDescriptions();
-                $mainLanguageCode = $contentType->mainLanguageCode;
-                $nameSchema       = $contentType->nameSchema;
-                $fieldDefinitions = $contentType->getFieldDefinitions();
-                $isContainer      = $contentType->isContainer;
+                $contentTypeGroup       = $contentTypeGroups[0];
+                $groupIdentifier        = $contentTypeGroup->identifier;
+                $identifier             = $contentType->identifier;
+                $names                  = $contentType->getNames();
+                $descriptions           = $contentType->getDescriptions();
+                $mainLanguageCode       = $contentType->mainLanguageCode;
+                $nameSchema             = $contentType->nameSchema;
+                $urlAliasSchema         = $contentType->urlAliasSchema;
+                $defaultAlwaysAvailable = $contentType->defaultAlwaysAvailable;
+                $fieldDefinitions       = $contentType->getFieldDefinitions();
+                $isContainer            = $contentType->isContainer;
                 unset( $contentType );
 
-                $aContentType['group_identifier'] = $groupIdentifier;
-                $aContentType['identifier']       = $identifier;
-                $aContentType['names']            = $names;
-                $aContentType['descriptions']     = $descriptions;
-                $aContentType['mainLanguageCode'] = $mainLanguageCode;
-                $aContentType['nameSchema']       = $nameSchema;
-                $aContentType['fieldDefinitions'] = $fieldDefinitions;
-                $aContentType['isContainer']      = $isContainer;
+                $aContentType['group_identifier']       = $groupIdentifier;
+                $aContentType['identifier']             = $identifier;
+                $aContentType['names']                  = $names;
+                $aContentType['descriptions']           = $descriptions;
+                $aContentType['mainLanguageCode']       = $mainLanguageCode;
+                $aContentType['nameSchema']             = $nameSchema;
+                $aContentType['urlAliasSchema']         = $urlAliasSchema;
+                $aContentType['defaultAlwaysAvailable'] = $defaultAlwaysAvailable;
+                $aContentType['fieldDefinitions']       = $fieldDefinitions;
+                $aContentType['isContainer']            = $isContainer;
 
                 $content[$identifier] = $this->createYMLFile( $aContentType, $output );
             }
@@ -119,6 +123,8 @@ class ExtractHelper
         $content .= $this->extractInfosForYML( 'descriptions', $contentType['descriptions'], '    ' );
         $content .= $this->extractInfosForYML( 'mainLanguageCode', $contentType['mainLanguageCode'], '    ' );
         $content .= $this->extractInfosForYML( 'nameSchema', $contentType['nameSchema'], '    ' );
+        $content .= $this->extractInfosForYML( 'urlAliasSchema', $contentType['urlAliasSchema'], '    ' );
+        $content .= $this->extractInfosForYML( 'defaultAlwaysAvailable', $contentType['defaultAlwaysAvailable'], '    ' );
         $content .= $this->extractInfosForYML( 'isContainer', $contentType['isContainer'], '    ' );
         $content .= "\r\n";
         $content .= "    ";
