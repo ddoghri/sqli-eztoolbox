@@ -14,6 +14,9 @@ services:
     SQLI\EzToolboxBundle\Form\:
         resource: "../../Form/*"
 
+    SQLI\EzToolboxBundle\Services\:
+        resource: '../../Services/*'
+
     SQLI\EzToolboxBundle\Services\Twig\:
         resource: '../../Services/Twig/*'
         tags:

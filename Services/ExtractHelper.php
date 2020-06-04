@@ -11,8 +11,7 @@ namespace SQLI\EzToolboxBundle\Services;
 use Exception;
 use eZ\Publish\API\Repository\Exceptions\NotFoundException;
 use eZ\Publish\API\Repository\Repository;
-use Monolog\Logger;
-use Netgen\TagsBundle\API\Repository\TagsService;
+use Netgen\TagsBundle\Core\Repository\TagsService;
 use Symfony\Component\Console\Output\OutputInterface;
 use Symfony\Component\Yaml\Yaml;
 
