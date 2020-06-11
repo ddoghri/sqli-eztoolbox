@@ -33,7 +33,7 @@ class FetchExtension extends AbstractExtension
     {
         return
             [
-                new TwigFunction( 'render_children', [ $this, 'renderChildren', [ 'is_safe' => [ 'all' ] ] ] ),
+                new TwigFunction( 'render_children', [ $this, 'renderChildren' ], [ 'is_safe' => [ 'all' ] ] ),
                 new TwigFunction( 'fetch_children', [ $this, 'fetchChildren' ] ),
                 new TwigFunction( 'fetch_ancestor', [ $this, 'fetchAncestor' ] ),
                 new TwigFunction( 'fetch_content', [ $this, 'fetchContent' ] ),
