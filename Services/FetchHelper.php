@@ -245,6 +245,35 @@ class FetchHelper
         }
     }
 
+    /**
+     * @param int|Content  $content
+     * @param int|Location $locationSubtree
+     * @return Location|null
+     * @throws NotFoundException
+     * @throws UnauthorizedException
+     */
+    public function fetchLocationFromContentInSubtree( $content, $locationSubtree )
+    {
+        if( $content instanceof Content )
+        {
+            $contentId = $content->id;
+        }
+        else
+        {
+            $contentId = intval( $content );
+        }
+
+        if( !$locationSubtree instanceof Location )
+        {
+            $locationSubtree = $this->locationService->loadLocation( intval( $locationSubtree ) );
+        }
+
+        $params[] = new Criterion\Subtree( $locationSubtree->pathString );
+        $params[] = new Criterion\ContentId( $contentId );
+
+        return $this->fetchLocation( $params );
+    }
+
     public function getName()
     {
         return 'fetch_extension';
