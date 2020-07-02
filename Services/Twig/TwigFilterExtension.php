@@ -56,8 +56,8 @@ class TwigFilterExtension extends AbstractExtension
         return
             [
                 new TwigFilter( 'format_data', [
-                    $this,
-                    'formatData'
+                    $this->dataFormatterHelper,
+                    'format'
                 ] ),
             ];
     }
