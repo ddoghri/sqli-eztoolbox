@@ -43,7 +43,7 @@ class TwigFilterExtension extends AbstractExtension
     {
         return
             [
-                new TwigFunction( 'format_data', [ $this, 'formatData' ] ),
+                new TwigFunction( 'format_data', [ $this->dataFormatterHelper, 'format' ] ),
                 new TwigFunction( 'empty_field', [ $this, 'isEmptyField' ] ),
                 new TwigFunction( 'is_anonymous_user', [ $this, 'isAnonymousUser' ] ),
                 new TwigFunction( 'content_name', [ $this, 'getContentName' ] ),
