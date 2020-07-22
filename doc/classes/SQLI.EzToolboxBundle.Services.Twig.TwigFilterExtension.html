@@ -1,0 +1,1040 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta name="viewport" content="width=device-width, initial-scale=1.0, maximum-scale=1.0, user-scalable=0"/>
+    <meta charset="utf-8"/>
+    <title>API Documentation</title>
+    <meta name="author" content=""/>
+    <meta name="description" content=""/>
+
+    <link href="../css/bootstrap-combined.no-icons.min.css" rel="stylesheet">
+    <link href="../css/font-awesome.min.css" rel="stylesheet">
+    <link href="../css/prism.css" rel="stylesheet" media="all"/>
+    <link href="../css/template.css" rel="stylesheet" media="all"/>
+    
+    <!--[if lt IE 9]>
+    <script src="../js/html5.js"></script>
+    <![endif]-->
+    <script src="../js/jquery-1.11.0.min.js"></script>
+    <script src="../js/ui/1.10.4/jquery-ui.min.js"></script>
+    <script src="../js/bootstrap.min.js"></script>
+    <script src="../js/jquery.smooth-scroll.js"></script>
+    <script src="../js/prism.min.js"></script>
+    <!-- TODO: Add http://jscrollpane.kelvinluck.com/ to style the scrollbars for browsers not using webkit-->
+    <script type="text/javascript">
+    function loadExternalCodeSnippets() {
+        Array.prototype.slice.call(document.querySelectorAll('pre[data-src]')).forEach(function (pre) {
+            var src = pre.getAttribute('data-src');
+            var extension = (src.match(/\.(\w+)$/) || [, ''])[1];
+            var language = 'php';
+
+            var code = document.createElement('code');
+            code.className = 'language-' + language;
+
+            pre.textContent = '';
+
+            code.textContent = 'Loading…';
+
+            pre.appendChild(code);
+
+            var xhr = new XMLHttpRequest();
+
+            xhr.open('GET', src, true);
+
+            xhr.onreadystatechange = function () {
+                if (xhr.readyState == 4) {
+
+                    if (xhr.status < 400 && xhr.responseText) {
+                        code.textContent = xhr.responseText;
+
+                        Prism.highlightElement(code);
+                    }
+                    else if (xhr.status >= 400) {
+                        code.textContent = '✖ Error ' + xhr.status + ' while fetching file: ' + xhr.statusText;
+                    }
+                    else {
+                        code.textContent = '✖ Error: File does not exist or is empty';
+                    }
+                }
+            };
+
+            xhr.send(null);
+        });
+    }
+
+    $(document).ready(function(){
+        loadExternalCodeSnippets();
+    });
+    $('#source-view').on('shown', function () {
+        loadExternalCodeSnippets();
+    })
+</script>
+
+    <link rel="shortcut icon" href="../images/favicon.ico"/>
+    <link rel="apple-touch-icon" href="../images/apple-touch-icon.png"/>
+    <link rel="apple-touch-icon" sizes="72x72" href="../images/apple-touch-icon-72x72.png"/>
+    <link rel="apple-touch-icon" sizes="114x114" href="../images/apple-touch-icon-114x114.png"/>
+</head>
+<body>
+
+<div class="navbar navbar-fixed-top">
+    <div class="navbar-inner">
+        <div class="container">
+            <a class="btn btn-navbar" data-toggle="collapse" data-target=".nav-collapse">
+                <i class="icon-ellipsis-vertical"></i>
+            </a>
+            <a class="brand" href="../index.html">API Documentation</a>
+
+            <div class="nav-collapse">
+                <ul class="nav pull-right">
+                                        <li class="dropdown">
+                        <a href="../index.html" class="dropdown-toggle" data-toggle="dropdown">
+                            API Documentation <b class="caret"></b>
+                        </a>
+                        <ul class="dropdown-menu">
+                                                        <li><a href="../namespaces/SQLI.html">\SQLI</a></li>
+                                                    </ul>
+                    </li>
+                                        <li class="dropdown" id="charts-menu">
+                        <a href="#" class="dropdown-toggle" data-toggle="dropdown">
+                            Charts <b class="caret"></b>
+                        </a>
+                        <ul class="dropdown-menu">
+                            <li>
+                                <a href="../graphs/class.html">
+                                    <i class="icon-list-alt"></i>&#160;Class hierarchy diagram
+                                </a>
+                            </li>
+                        </ul>
+                    </li>
+                    <li class="dropdown" id="reports-menu">
+                        <a href="#" class="dropdown-toggle" data-toggle="dropdown">
+                            Reports <b class="caret"></b>
+                        </a>
+                        <ul class="dropdown-menu">
+                            <li>
+                                <a href="../reports/errors.html">
+                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                <i class="icon-list-alt"></i>&#160;Errors <span class="label label-info pull-right">257</span>
+                                </a>
+                            </li>
+                            <li>
+                                <a href="../reports/markers.html">
+                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                <i class="icon-list-alt"></i>&#160;Markers <span class="label label-info pull-right">16</span>
+                                </a>
+                            </li>
+                            <li>
+                                <a href="../reports/deprecated.html">
+                                                                                                            <i class="icon-list-alt"></i>&#160;Deprecated <span class="label label-info pull-right">0</span>
+                                </a>
+                            </li>
+                        </ul>
+                    </li>
+                </ul>
+            </div>
+        </div>
+    </div>
+    <!--<div class="go_to_top">-->
+    <!--<a href="#___" style="color: inherit">Back to top&#160;&#160;<i class="icon-upload icon-white"></i></a>-->
+    <!--</div>-->
+</div>
+
+<div id="___" class="container-fluid">
+        <section class="row-fluid">
+        <div class="span2 sidebar">
+                                <div class="accordion" style="margin-bottom: 0">
+        <div class="accordion-group">
+            <div class="accordion-heading">
+                                    <a class="accordion-toggle " data-toggle="collapse" data-target="#namespace-1365809458"></a>
+                                <a href="../namespaces/default.html" style="margin-left: 30px; padding-left: 0">\</a>
+            </div>
+            <div id="namespace-1365809458" class="accordion-body collapse in">
+                <div class="accordion-inner">
+
+                                                    <div class="accordion" style="margin-bottom: 0">
+        <div class="accordion-group">
+            <div class="accordion-heading">
+                                    <a class="accordion-toggle collapsed" data-toggle="collapse" data-target="#namespace-928036389"></a>
+                                <a href="../namespaces/SQLI.html" style="margin-left: 30px; padding-left: 0">SQLI</a>
+            </div>
+            <div id="namespace-928036389" class="accordion-body collapse ">
+                <div class="accordion-inner">
+
+                                                    <div class="accordion" style="margin-bottom: 0">
+        <div class="accordion-group">
+            <div class="accordion-heading">
+                                    <a class="accordion-toggle collapsed" data-toggle="collapse" data-target="#namespace-1373722665"></a>
+                                <a href="../namespaces/SQLI.EzToolboxBundle.html" style="margin-left: 30px; padding-left: 0">EzToolboxBundle</a>
+            </div>
+            <div id="namespace-1373722665" class="accordion-body collapse ">
+                <div class="accordion-inner">
+
+                                                    <div class="accordion" style="margin-bottom: 0">
+        <div class="accordion-group">
+            <div class="accordion-heading">
+                                    <a class="accordion-toggle collapsed" data-toggle="collapse" data-target="#namespace-826962109"></a>
+                                <a href="../namespaces/SQLI.EzToolboxBundle.Annotations.html" style="margin-left: 30px; padding-left: 0">Annotations</a>
+            </div>
+            <div id="namespace-826962109" class="accordion-body collapse ">
+                <div class="accordion-inner">
+
+                                                    <div class="accordion" style="margin-bottom: 0">
+        <div class="accordion-group">
+            <div class="accordion-heading">
+                                    <a class="accordion-toggle collapsed" data-toggle="collapse" data-target="#namespace-965776312"></a>
+                                <a href="../namespaces/SQLI.EzToolboxBundle.Annotations.Annotation.html" style="margin-left: 30px; padding-left: 0">Annotation</a>
+            </div>
+            <div id="namespace-965776312" class="accordion-body collapse ">
+                <div class="accordion-inner">
+
+                    
+                    <ul>
+                                                    <li class="interface"><a href="../classes/SQLI.EzToolboxBundle.Annotations.Annotation.SQLIClassAnnotation.html">SQLIClassAnnotation</a></li>
+                                                    <li class="interface"><a href="../classes/SQLI.EzToolboxBundle.Annotations.Annotation.SQLIPropertyAnnotation.html">SQLIPropertyAnnotation</a></li>
+                                                                                                    <li class="class"><a href="../classes/SQLI.EzToolboxBundle.Annotations.Annotation.Entity.html">Entity</a></li>
+                                                    <li class="class"><a href="../classes/SQLI.EzToolboxBundle.Annotations.Annotation.EntityProperty.html">EntityProperty</a></li>
+                                            </ul>
+                </div>
+            </div>
+        </div>
+    </div>
+
+                    
+                    <ul>
+                                                                                                    <li class="class"><a href="../classes/SQLI.EzToolboxBundle.Annotations.SQLIAnnotationManager.html">SQLIAnnotationManager</a></li>
+                                            </ul>
+                </div>
+            </div>
+        </div>
+    </div>
+
+                                                    <div class="accordion" style="margin-bottom: 0">
+        <div class="accordion-group">
+            <div class="accordion-heading">
+                                    <a class="accordion-toggle collapsed" data-toggle="collapse" data-target="#namespace-673388205"></a>
+                                <a href="../namespaces/SQLI.EzToolboxBundle.Command.html" style="margin-left: 30px; padding-left: 0">Command</a>
+            </div>
+            <div id="namespace-673388205" class="accordion-body collapse ">
+                <div class="accordion-inner">
+
+                    
+                    <ul>
+                                                                                                    <li class="class"><a href="../classes/SQLI.EzToolboxBundle.Command.ChildrenMoveCommand.html">ChildrenMoveCommand</a></li>
+                                                    <li class="class"><a href="../classes/SQLI.EzToolboxBundle.Command.CleanRedisCacheCommand.html">CleanRedisCacheCommand</a></li>
+                                                    <li class="class"><a href="../classes/SQLI.EzToolboxBundle.Command.CopyContentFieldAllContentsCommand.html">CopyContentFieldAllContentsCommand</a></li>
+                                                    <li class="class"><a href="../classes/SQLI.EzToolboxBundle.Command.CreateOrUpdateContentTypeCommand.html">CreateOrUpdateContentTypeCommand</a></li>
+                                                    <li class="class"><a href="../classes/SQLI.EzToolboxBundle.Command.ExtractContentTypeCommand.html">ExtractContentTypeCommand</a></li>
+                                                    <li class="class"><a href="../classes/SQLI.EzToolboxBundle.Command.EzObjectInfoCommand.html">EzObjectInfoCommand</a></li>
+                                                    <li class="class"><a href="../classes/SQLI.EzToolboxBundle.Command.LocationHideCommand.html">LocationHideCommand</a></li>
+                                                    <li class="class"><a href="../classes/SQLI.EzToolboxBundle.Command.LocationUnhideCommand.html">LocationUnhideCommand</a></li>
+                                                    <li class="class"><a href="../classes/SQLI.EzToolboxBundle.Command.PublishAllContentsCommand.html">PublishAllContentsCommand</a></li>
+                                                    <li class="class"><a href="../classes/SQLI.EzToolboxBundle.Command.PurgeDraftsCommand.html">PurgeDraftsCommand</a></li>
+                                                    <li class="class"><a href="../classes/SQLI.EzToolboxBundle.Command.PurgeTrashCommand.html">PurgeTrashCommand</a></li>
+                                                    <li class="class"><a href="../classes/SQLI.EzToolboxBundle.Command.RemoveCommand.html">RemoveCommand</a></li>
+                                                    <li class="class"><a href="../classes/SQLI.EzToolboxBundle.Command.SubtreeMoveCommand.html">SubtreeMoveCommand</a></li>
+                                            </ul>
+                </div>
+            </div>
+        </div>
+    </div>
+
+                                                    <div class="accordion" style="margin-bottom: 0">
+        <div class="accordion-group">
+            <div class="accordion-heading">
+                                    <a class="accordion-toggle collapsed" data-toggle="collapse" data-target="#namespace-230963620"></a>
+                                <a href="../namespaces/SQLI.EzToolboxBundle.Controller.html" style="margin-left: 30px; padding-left: 0">Controller</a>
+            </div>
+            <div id="namespace-230963620" class="accordion-body collapse ">
+                <div class="accordion-inner">
+
+                    
+                    <ul>
+                                                                                                    <li class="class"><a href="../classes/SQLI.EzToolboxBundle.Controller.ContentTypeInstallerController.html">ContentTypeInstallerController</a></li>
+                                                    <li class="class"><a href="../classes/SQLI.EzToolboxBundle.Controller.EntitiesController.html">EntitiesController</a></li>
+                                            </ul>
+                </div>
+            </div>
+        </div>
+    </div>
+
+                                                    <div class="accordion" style="margin-bottom: 0">
+        <div class="accordion-group">
+            <div class="accordion-heading">
+                                    <a class="accordion-toggle collapsed" data-toggle="collapse" data-target="#namespace-253345797"></a>
+                                <a href="../namespaces/SQLI.EzToolboxBundle.DependencyInjection.html" style="margin-left: 30px; padding-left: 0">DependencyInjection</a>
+            </div>
+            <div id="namespace-253345797" class="accordion-body collapse ">
+                <div class="accordion-inner">
+
+                                                    <div class="accordion" style="margin-bottom: 0">
+        <div class="accordion-group">
+            <div class="accordion-heading">
+                                    <a class="accordion-toggle collapsed" data-toggle="collapse" data-target="#namespace-1336221230"></a>
+                                <a href="../namespaces/SQLI.EzToolboxBundle.DependencyInjection.PolicyProvider.html" style="margin-left: 30px; padding-left: 0">PolicyProvider</a>
+            </div>
+            <div id="namespace-1336221230" class="accordion-body collapse ">
+                <div class="accordion-inner">
+
+                    
+                    <ul>
+                                                                                                    <li class="class"><a href="../classes/SQLI.EzToolboxBundle.DependencyInjection.PolicyProvider.SQLIEzToolboxPolicyProvider.html">SQLIEzToolboxPolicyProvider</a></li>
+                                            </ul>
+                </div>
+            </div>
+        </div>
+    </div>
+
+                    
+                    <ul>
+                                                                                                    <li class="class"><a href="../classes/SQLI.EzToolboxBundle.DependencyInjection.Configuration.html">Configuration</a></li>
+                                                    <li class="class"><a href="../classes/SQLI.EzToolboxBundle.DependencyInjection.SQLIEzToolboxExtension.html">SQLIEzToolboxExtension</a></li>
+                                            </ul>
+                </div>
+            </div>
+        </div>
+    </div>
+
+                                                    <div class="accordion" style="margin-bottom: 0">
+        <div class="accordion-group">
+            <div class="accordion-heading">
+                                    <a class="accordion-toggle collapsed" data-toggle="collapse" data-target="#namespace-1387566051"></a>
+                                <a href="../namespaces/SQLI.EzToolboxBundle.Exceptions.html" style="margin-left: 30px; padding-left: 0">Exceptions</a>
+            </div>
+            <div id="namespace-1387566051" class="accordion-body collapse ">
+                <div class="accordion-inner">
+
+                    
+                    <ul>
+                                                                                                    <li class="class"><a href="../classes/SQLI.EzToolboxBundle.Exceptions.DataFormatterException.html">DataFormatterException</a></li>
+                                            </ul>
+                </div>
+            </div>
+        </div>
+    </div>
+
+                                                    <div class="accordion" style="margin-bottom: 0">
+        <div class="accordion-group">
+            <div class="accordion-heading">
+                                    <a class="accordion-toggle collapsed" data-toggle="collapse" data-target="#namespace-599821393"></a>
+                                <a href="../namespaces/SQLI.EzToolboxBundle.Form.html" style="margin-left: 30px; padding-left: 0">Form</a>
+            </div>
+            <div id="namespace-599821393" class="accordion-body collapse ">
+                <div class="accordion-inner">
+
+                                                    <div class="accordion" style="margin-bottom: 0">
+        <div class="accordion-group">
+            <div class="accordion-heading">
+                                    <a class="accordion-toggle collapsed" data-toggle="collapse" data-target="#namespace-1616278671"></a>
+                                <a href="../namespaces/SQLI.EzToolboxBundle.Form.EntityManager.html" style="margin-left: 30px; padding-left: 0">EntityManager</a>
+            </div>
+            <div id="namespace-1616278671" class="accordion-body collapse ">
+                <div class="accordion-inner">
+
+                    
+                    <ul>
+                                                                                                    <li class="class"><a href="../classes/SQLI.EzToolboxBundle.Form.EntityManager.EditElementType.html">EditElementType</a></li>
+                                                    <li class="class"><a href="../classes/SQLI.EzToolboxBundle.Form.EntityManager.FilterType.html">FilterType</a></li>
+                                            </ul>
+                </div>
+            </div>
+        </div>
+    </div>
+
+                    
+                    <ul>
+                                                                                            </ul>
+                </div>
+            </div>
+        </div>
+    </div>
+
+                                                    <div class="accordion" style="margin-bottom: 0">
+        <div class="accordion-group">
+            <div class="accordion-heading">
+                                    <a class="accordion-toggle collapsed" data-toggle="collapse" data-target="#namespace-493619599"></a>
+                                <a href="../namespaces/SQLI.EzToolboxBundle.Menu.html" style="margin-left: 30px; padding-left: 0">Menu</a>
+            </div>
+            <div id="namespace-493619599" class="accordion-body collapse ">
+                <div class="accordion-inner">
+
+                    
+                    <ul>
+                                                                                                    <li class="class"><a href="../classes/SQLI.EzToolboxBundle.Menu.EditElementRightSidebarBuilder.html">EditElementRightSidebarBuilder</a></li>
+                                                    <li class="class"><a href="../classes/SQLI.EzToolboxBundle.Menu.MenuListener.html">MenuListener</a></li>
+                                            </ul>
+                </div>
+            </div>
+        </div>
+    </div>
+
+                                                    <div class="accordion" style="margin-bottom: 0">
+        <div class="accordion-group">
+            <div class="accordion-heading">
+                                    <a class="accordion-toggle collapsed" data-toggle="collapse" data-target="#namespace-915524166"></a>
+                                <a href="../namespaces/SQLI.EzToolboxBundle.QueryType.html" style="margin-left: 30px; padding-left: 0">QueryType</a>
+            </div>
+            <div id="namespace-915524166" class="accordion-body collapse ">
+                <div class="accordion-inner">
+
+                    
+                    <ul>
+                                                                                                    <li class="class"><a href="../classes/SQLI.EzToolboxBundle.QueryType.ChildrenQueryType.html">ChildrenQueryType</a></li>
+                                                    <li class="class"><a href="../classes/SQLI.EzToolboxBundle.QueryType.ContentChildrenQueryType.html">ContentChildrenQueryType</a></li>
+                                            </ul>
+                </div>
+            </div>
+        </div>
+    </div>
+
+                                                    <div class="accordion" style="margin-bottom: 0">
+        <div class="accordion-group">
+            <div class="accordion-heading">
+                                    <a class="accordion-toggle collapsed" data-toggle="collapse" data-target="#namespace-1920851528"></a>
+                                <a href="../namespaces/SQLI.EzToolboxBundle.Services.html" style="margin-left: 30px; padding-left: 0">Services</a>
+            </div>
+            <div id="namespace-1920851528" class="accordion-body collapse ">
+                <div class="accordion-inner">
+
+                                                    <div class="accordion" style="margin-bottom: 0">
+        <div class="accordion-group">
+            <div class="accordion-heading">
+                                    <a class="accordion-toggle collapsed" data-toggle="collapse" data-target="#namespace-1408433108"></a>
+                                <a href="../namespaces/SQLI.EzToolboxBundle.Services.Twig.html" style="margin-left: 30px; padding-left: 0">Twig</a>
+            </div>
+            <div id="namespace-1408433108" class="accordion-body collapse ">
+                <div class="accordion-inner">
+
+                    
+                    <ul>
+                                                                                                    <li class="class"><a href="../classes/SQLI.EzToolboxBundle.Services.Twig.EntityExtension.html">EntityExtension</a></li>
+                                                    <li class="class"><a href="../classes/SQLI.EzToolboxBundle.Services.Twig.FetchExtension.html">FetchExtension</a></li>
+                                                    <li class="class"><a href="../classes/SQLI.EzToolboxBundle.Services.Twig.TwigFilterExtension.html">TwigFilterExtension</a></li>
+                                            </ul>
+                </div>
+            </div>
+        </div>
+    </div>
+
+                    
+                    <ul>
+                                                                                                    <li class="class"><a href="../classes/SQLI.EzToolboxBundle.Services.DataFormatterHelper.html">DataFormatterHelper</a></li>
+                                                    <li class="class"><a href="../classes/SQLI.EzToolboxBundle.Services.EntityHelper.html">EntityHelper</a></li>
+                                                    <li class="class"><a href="../classes/SQLI.EzToolboxBundle.Services.FetchHelper.html">FetchHelper</a></li>
+                                                    <li class="class"><a href="../classes/SQLI.EzToolboxBundle.Services.FieldHelper.html">FieldHelper</a></li>
+                                                    <li class="class"><a href="../classes/SQLI.EzToolboxBundle.Services.TabEntityHelper.html">TabEntityHelper</a></li>
+                                            </ul>
+                </div>
+            </div>
+        </div>
+    </div>
+
+                    
+                    <ul>
+                                                                                                    <li class="class"><a href="../classes/SQLI.EzToolboxBundle.SQLIEzToolboxBundle.html">SQLIEzToolboxBundle</a></li>
+                                            </ul>
+                </div>
+            </div>
+        </div>
+    </div>
+
+                    
+                    <ul>
+                                                                                            </ul>
+                </div>
+            </div>
+        </div>
+    </div>
+
+                    
+                    <ul>
+                                                                                            </ul>
+                </div>
+            </div>
+        </div>
+    </div>
+
+        </div>
+    </section>
+    <section class="row-fluid">
+        <div class="span10 offset2">
+            <div class="row-fluid">
+                <div class="span8 content class">
+                    <nav>
+                                                <a href="../namespaces/SQLI.EzToolboxBundle.Services.Twig.html">\SQLI\EzToolboxBundle\Services\Twig</a> <i class="icon-level-up"></i>
+                                            </nav>
+                    <a href="#source-view" role="button" class="pull-right btn" data-toggle="modal"><i class="icon-code"></i></a>
+
+                    <h1><small>\SQLI\EzToolboxBundle\Services\Twig</small>TwigFilterExtension</h1>
+                    <p><em></em></p>
+                    
+                    
+                                        
+                    <section id="summary">
+                        <h2>Summary</h2>
+                        <section class="row-fluid heading">
+                            <section class="span4">
+                                <a href="#methods">Methods</a>
+                            </section>
+                            <section class="span4">
+                                <a href="#properties">Properties</a>
+                            </section>
+                            <section class="span4">
+                                <a href="#constants">Constants</a>
+                            </section>
+                        </section>
+                        <section class="row-fluid public">
+                            <section class="span4">
+                                                                    <a href="../classes/SQLI.EzToolboxBundle.Services.Twig.TwigFilterExtension.html#method___construct" class="">__construct()</a><br />
+                                                                    <a href="../classes/SQLI.EzToolboxBundle.Services.Twig.TwigFilterExtension.html#method_getFunctions" class="">getFunctions()</a><br />
+                                                                    <a href="../classes/SQLI.EzToolboxBundle.Services.Twig.TwigFilterExtension.html#method_getFilters" class="">getFilters()</a><br />
+                                                                    <a href="../classes/SQLI.EzToolboxBundle.Services.Twig.TwigFilterExtension.html#method_getParameter" class="">getParameter()</a><br />
+                                                                    <a href="../classes/SQLI.EzToolboxBundle.Services.Twig.TwigFilterExtension.html#method_isEmptyField" class="">isEmptyField()</a><br />
+                                                                    <a href="../classes/SQLI.EzToolboxBundle.Services.Twig.TwigFilterExtension.html#method_getContentName" class="">getContentName()</a><br />
+                                                                    <a href="../classes/SQLI.EzToolboxBundle.Services.Twig.TwigFilterExtension.html#method_isAnonymousUser" class="">isAnonymousUser()</a><br />
+                                                                    <a href="../classes/SQLI.EzToolboxBundle.Services.Twig.TwigFilterExtension.html#method_getName" class="">getName()</a><br />
+                                                            </section>
+                            <section class="span4">
+                                                                    <em>No public properties found</em>
+                                                            </section>
+                            <section class="span4">
+                                                                    <em>No constants found</em>
+                                                            </section>
+                        </section>
+                        <section class="row-fluid protected">
+                            <section class="span4">
+                                                                    <em>No protected methods found</em>
+                                                            </section>
+                            <section class="span4">
+                                                                    <em>No protected properties found</em>
+                                                            </section>
+                            <section class="span4">
+                                <em>N/A</em>
+                            </section>
+                        </section>
+                        <section class="row-fluid private">
+                            <section class="span4">
+                                                                    <em>No private methods found</em>
+                                                            </section>
+                            <section class="span4">
+                                                                    <a href="../classes/SQLI.EzToolboxBundle.Services.Twig.TwigFilterExtension.html#property_repository" class="">$repository</a><br />
+                                                                    <a href="../classes/SQLI.EzToolboxBundle.Services.Twig.TwigFilterExtension.html#property_dataFormatterHelper" class="">$dataFormatterHelper</a><br />
+                                                                    <a href="../classes/SQLI.EzToolboxBundle.Services.Twig.TwigFilterExtension.html#property_configResolver" class="">$configResolver</a><br />
+                                                                    <a href="../classes/SQLI.EzToolboxBundle.Services.Twig.TwigFilterExtension.html#property_fieldHelper" class="">$fieldHelper</a><br />
+                                                                    <a href="../classes/SQLI.EzToolboxBundle.Services.Twig.TwigFilterExtension.html#property_contentExtension" class="">$contentExtension</a><br />
+                                                            </section>
+                            <section class="span4">
+                                <em>N/A</em>
+                            </section>
+                        </section>
+                    </section>
+                </div>
+                <aside class="span4 detailsbar">
+                                        
+                    
+                    <dl>
+                        <dt>File</dt>
+                            <dd><a href="../files/Services.Twig.TwigFilterExtension.html"><div class="path-wrapper">Services/Twig/TwigFilterExtension.php</div></a></dd>
+                                                <dt>Package</dt>
+                            <dd><div class="namespace-wrapper">Default</div></dd>
+                                                <dt>Class hierarchy</dt>
+                            <dd class="hierarchy">
+                                                                                                                                                                                                                                                                                                
+                                        <div class="namespace-wrapper">\Twig\Extension\AbstractExtension</div>
+                                                                                                    <div class="namespace-wrapper">\SQLI\EzToolboxBundle\Services\Twig\TwigFilterExtension</div>
+                            </dd>
+
+                        
+                        
+                        
+                        
+                                                                        </dl>
+                    <h2>Tags</h2>
+                    <table class="table table-condensed">
+                                            <tr><td colspan="2"><em>None found</em></td></tr>
+                                        </table>
+                </aside>
+            </div>
+
+                        
+                                    <a id="properties" name="properties"></a>
+            <div class="row-fluid">
+                <div class="span8 content class">
+                    <h2>Properties</h2>
+                </div>
+                <aside class="span4 detailsbar"></aside>
+            </div>
+
+                                                                    <div class="row-fluid">
+        <div class="span8 content class">
+            <a id="property_repository" name="property_repository" class="anchor"></a>
+            <article class="property">
+                <h3 class="private ">$repository</h3>
+                <pre class="signature">$repository : \eZ\Publish\API\Repository\Repository</pre>
+                <p><em></em></p>
+                
+
+                                <h4>Type</h4>
+                \eZ\Publish\API\Repository\Repository
+                                            </article>
+        </div>
+        <aside class="span4 detailsbar">
+            <h1><i class="icon-arrow-down"></i></h1>
+                        <dl>
+                                                            </dl>
+            <h2>Tags</h2>
+            <table class="table table-condensed">
+                                    <tr><td colspan="2"><em>None found</em></td></tr>
+                            </table>
+        </aside>
+    </div>
+
+                                    <div class="row-fluid">
+        <div class="span8 content class">
+            <a id="property_dataFormatterHelper" name="property_dataFormatterHelper" class="anchor"></a>
+            <article class="property">
+                <h3 class="private ">$dataFormatterHelper</h3>
+                <pre class="signature">$dataFormatterHelper : \SQLI\EzToolboxBundle\Services\DataFormatterHelper</pre>
+                <p><em></em></p>
+                
+
+                                <h4>Type</h4>
+                <a href="../classes/SQLI.EzToolboxBundle.Services.DataFormatterHelper.html">\SQLI\EzToolboxBundle\Services\DataFormatterHelper</a>
+                                            </article>
+        </div>
+        <aside class="span4 detailsbar">
+            <h1><i class="icon-arrow-down"></i></h1>
+                        <dl>
+                                                            </dl>
+            <h2>Tags</h2>
+            <table class="table table-condensed">
+                                    <tr><td colspan="2"><em>None found</em></td></tr>
+                            </table>
+        </aside>
+    </div>
+
+                                    <div class="row-fluid">
+        <div class="span8 content class">
+            <a id="property_configResolver" name="property_configResolver" class="anchor"></a>
+            <article class="property">
+                <h3 class="private ">$configResolver</h3>
+                <pre class="signature">$configResolver : \eZ\Publish\Core\MVC\ConfigResolverInterface</pre>
+                <p><em></em></p>
+                
+
+                                <h4>Type</h4>
+                \eZ\Publish\Core\MVC\ConfigResolverInterface
+                                            </article>
+        </div>
+        <aside class="span4 detailsbar">
+            <h1><i class="icon-arrow-down"></i></h1>
+                        <dl>
+                                                            </dl>
+            <h2>Tags</h2>
+            <table class="table table-condensed">
+                                    <tr><td colspan="2"><em>None found</em></td></tr>
+                            </table>
+        </aside>
+    </div>
+
+                                    <div class="row-fluid">
+        <div class="span8 content class">
+            <a id="property_fieldHelper" name="property_fieldHelper" class="anchor"></a>
+            <article class="property">
+                <h3 class="private ">$fieldHelper</h3>
+                <pre class="signature">$fieldHelper : \SQLI\EzToolboxBundle\Services\FieldHelper</pre>
+                <p><em></em></p>
+                
+
+                                <h4>Type</h4>
+                <a href="../classes/SQLI.EzToolboxBundle.Services.FieldHelper.html">\SQLI\EzToolboxBundle\Services\FieldHelper</a>
+                                            </article>
+        </div>
+        <aside class="span4 detailsbar">
+            <h1><i class="icon-arrow-down"></i></h1>
+                        <dl>
+                                                            </dl>
+            <h2>Tags</h2>
+            <table class="table table-condensed">
+                                    <tr><td colspan="2"><em>None found</em></td></tr>
+                            </table>
+        </aside>
+    </div>
+
+                                    <div class="row-fluid">
+        <div class="span8 content class">
+            <a id="property_contentExtension" name="property_contentExtension" class="anchor"></a>
+            <article class="property">
+                <h3 class="private ">$contentExtension</h3>
+                <pre class="signature">$contentExtension : \eZ\Publish\Core\MVC\Symfony\Templating\Twig\Extension\ContentExtension</pre>
+                <p><em></em></p>
+                
+
+                                <h4>Type</h4>
+                \eZ\Publish\Core\MVC\Symfony\Templating\Twig\Extension\ContentExtension
+                                            </article>
+        </div>
+        <aside class="span4 detailsbar">
+            <h1><i class="icon-arrow-down"></i></h1>
+                        <dl>
+                                                            </dl>
+            <h2>Tags</h2>
+            <table class="table table-condensed">
+                                    <tr><td colspan="2"><em>None found</em></td></tr>
+                            </table>
+        </aside>
+    </div>
+
+                            
+                                    <a id="methods" name="methods"></a>
+            <div class="row-fluid">
+                <div class="span8 content class"><h2>Methods</h2></div>
+                <aside class="span4 detailsbar"></aside>
+            </div>
+
+                                    <div class="row-fluid">
+        <div class="span8 content class">
+            <a id="method___construct" name="method___construct" class="anchor"></a>
+            <article class="method">
+                <h3 class="public ">__construct()</h3>
+                <a href="#source-view" role="button" class="pull-right btn" data-toggle="modal" style="font-size: 1.1em; padding: 9px 14px"><i class="icon-code"></i></a>
+                <pre class="signature" style="margin-right: 54px;">__construct(\eZ\Publish\API\Repository\Repository  <span class="argument">$repository</span>, \SQLI\EzToolboxBundle\Services\DataFormatterHelper  <span class="argument">$dataFormatterHelper</span>, \eZ\Publish\Core\MVC\ConfigResolverInterface  <span class="argument">$configResolver</span>, \SQLI\EzToolboxBundle\Services\FieldHelper  <span class="argument">$fieldHelper</span>, \eZ\Publish\Core\MVC\Symfony\Templating\Twig\Extension\ContentExtension  <span class="argument">$contentExtension</span>) </pre>
+                <p><em></em></p>
+                
+
+                                    <h4>Parameters</h4>
+                    <table class="table table-condensed table-hover">
+                                                    <tr>
+                                <td>\eZ\Publish\API\Repository\Repository</td>
+                                <td>$repository </td>
+                                <td></td>
+                            </tr>
+                                                    <tr>
+                                <td><a href="../classes/SQLI.EzToolboxBundle.Services.DataFormatterHelper.html">\SQLI\EzToolboxBundle\Services\DataFormatterHelper</a></td>
+                                <td>$dataFormatterHelper </td>
+                                <td></td>
+                            </tr>
+                                                    <tr>
+                                <td>\eZ\Publish\Core\MVC\ConfigResolverInterface</td>
+                                <td>$configResolver </td>
+                                <td></td>
+                            </tr>
+                                                    <tr>
+                                <td><a href="../classes/SQLI.EzToolboxBundle.Services.FieldHelper.html">\SQLI\EzToolboxBundle\Services\FieldHelper</a></td>
+                                <td>$fieldHelper </td>
+                                <td></td>
+                            </tr>
+                                                    <tr>
+                                <td>\eZ\Publish\Core\MVC\Symfony\Templating\Twig\Extension\ContentExtension</td>
+                                <td>$contentExtension </td>
+                                <td></td>
+                            </tr>
+                                            </table>
+                
+                
+                				
+                            </article>
+        </div>
+        <aside class="span4 detailsbar">
+            <h1><i class="icon-arrow-down"></i></h1>
+                                                            <dl>
+                                                                            </dl>
+            <h2>Tags</h2>
+            <table class="table table-condensed">
+                                    <tr><td colspan="2"><em>None found</em></td></tr>
+                            </table>
+        </aside>
+    </div>
+
+                                    <div class="row-fluid">
+        <div class="span8 content class">
+            <a id="method_getFunctions" name="method_getFunctions" class="anchor"></a>
+            <article class="method">
+                <h3 class="public ">getFunctions()</h3>
+                <a href="#source-view" role="button" class="pull-right btn" data-toggle="modal" style="font-size: 1.1em; padding: 9px 14px"><i class="icon-code"></i></a>
+                <pre class="signature" style="margin-right: 54px;">getFunctions() </pre>
+                <p><em></em></p>
+                
+
+                
+                
+                				
+                            </article>
+        </div>
+        <aside class="span4 detailsbar">
+            <h1><i class="icon-arrow-down"></i></h1>
+                                                            <dl>
+                                                                            </dl>
+            <h2>Tags</h2>
+            <table class="table table-condensed">
+                                    <tr><td colspan="2"><em>None found</em></td></tr>
+                            </table>
+        </aside>
+    </div>
+
+                                    <div class="row-fluid">
+        <div class="span8 content class">
+            <a id="method_getFilters" name="method_getFilters" class="anchor"></a>
+            <article class="method">
+                <h3 class="public ">getFilters()</h3>
+                <a href="#source-view" role="button" class="pull-right btn" data-toggle="modal" style="font-size: 1.1em; padding: 9px 14px"><i class="icon-code"></i></a>
+                <pre class="signature" style="margin-right: 54px;">getFilters() </pre>
+                <p><em></em></p>
+                
+
+                
+                
+                				
+                            </article>
+        </div>
+        <aside class="span4 detailsbar">
+            <h1><i class="icon-arrow-down"></i></h1>
+                                                            <dl>
+                                                                            </dl>
+            <h2>Tags</h2>
+            <table class="table table-condensed">
+                                    <tr><td colspan="2"><em>None found</em></td></tr>
+                            </table>
+        </aside>
+    </div>
+
+                                    <div class="row-fluid">
+        <div class="span8 content class">
+            <a id="method_getParameter" name="method_getParameter" class="anchor"></a>
+            <article class="method">
+                <h3 class="public ">getParameter()</h3>
+                <a href="#source-view" role="button" class="pull-right btn" data-toggle="modal" style="font-size: 1.1em; padding: 9px 14px"><i class="icon-code"></i></a>
+                <pre class="signature" style="margin-right: 54px;">getParameter(  <span class="argument">$parameterName</span>,   <span class="argument">$namespace</span>) : null</pre>
+                <p><em>Search a variable/parameter in eZ namespace</em></p>
+                
+
+                                    <h4>Parameters</h4>
+                    <table class="table table-condensed table-hover">
+                                                    <tr>
+                                <td></td>
+                                <td>$parameterName </td>
+                                <td></td>
+                            </tr>
+                                                    <tr>
+                                <td></td>
+                                <td>$namespace </td>
+                                <td></td>
+                            </tr>
+                                            </table>
+                
+                
+                                    <h4>Returns</h4>
+                    null
+                                    				
+                            </article>
+        </div>
+        <aside class="span4 detailsbar">
+            <h1><i class="icon-arrow-down"></i></h1>
+                                                            <dl>
+                                                                            </dl>
+            <h2>Tags</h2>
+            <table class="table table-condensed">
+                                    <tr><td colspan="2"><em>None found</em></td></tr>
+                            </table>
+        </aside>
+    </div>
+
+                                    <div class="row-fluid">
+        <div class="span8 content class">
+            <a id="method_isEmptyField" name="method_isEmptyField" class="anchor"></a>
+            <article class="method">
+                <h3 class="public ">isEmptyField()</h3>
+                <a href="#source-view" role="button" class="pull-right btn" data-toggle="modal" style="font-size: 1.1em; padding: 9px 14px"><i class="icon-code"></i></a>
+                <pre class="signature" style="margin-right: 54px;">isEmptyField(\eZ\Publish\API\Repository\Values\Content\Content  <span class="argument">$content</span>, \eZ\Publish\API\Repository\Values\Content\Field|string  <span class="argument">$fieldDefIdentifier</span>, string  <span class="argument">$forcedLanguage = null</span>) : boolean</pre>
+                <p><em>Checks if a given field is considered empty.</em></p>
+                <p>This method accepts field as Objects or by identifiers.</p>
+
+                                    <h4>Parameters</h4>
+                    <table class="table table-condensed table-hover">
+                                                    <tr>
+                                <td>\eZ\Publish\API\Repository\Values\Content\Content</td>
+                                <td>$content </td>
+                                <td></td>
+                            </tr>
+                                                    <tr>
+                                <td>\eZ\Publish\API\Repository\Values\Content\Field|string</td>
+                                <td>$fieldDefIdentifier </td>
+                                <td><p>Field or Field Identifier to get the value from.</p></td>
+                            </tr>
+                                                    <tr>
+                                <td>string</td>
+                                <td>$forcedLanguage </td>
+                                <td><p>Locale we want the content name translation in (e.g. &quot;fre-FR&quot;).
+Null by default (takes current locale).</p></td>
+                            </tr>
+                                            </table>
+                
+                
+                                    <h4>Returns</h4>
+                    boolean
+                                    				
+                            </article>
+        </div>
+        <aside class="span4 detailsbar">
+            <h1><i class="icon-arrow-down"></i></h1>
+                                                            <dl>
+                                                                            </dl>
+            <h2>Tags</h2>
+            <table class="table table-condensed">
+                                    <tr><td colspan="2"><em>None found</em></td></tr>
+                            </table>
+        </aside>
+    </div>
+
+                                    <div class="row-fluid">
+        <div class="span8 content class">
+            <a id="method_getContentName" name="method_getContentName" class="anchor"></a>
+            <article class="method">
+                <h3 class="public ">getContentName()</h3>
+                <a href="#source-view" role="button" class="pull-right btn" data-toggle="modal" style="font-size: 1.1em; padding: 9px 14px"><i class="icon-code"></i></a>
+                <pre class="signature" style="margin-right: 54px;">getContentName(  <span class="argument">$content</span>) : string</pre>
+                <p><em>Get content name even if current user cannot access to this content</em></p>
+                
+
+                                    <h4>Parameters</h4>
+                    <table class="table table-condensed table-hover">
+                                                    <tr>
+                                <td></td>
+                                <td>$content </td>
+                                <td><p>Content|int Content or it's ID</p></td>
+                            </tr>
+                                            </table>
+                
+                                    <h4>Throws</h4>
+                    <dl>
+                                                    <dt>\eZ\Publish\Core\Base\Exceptions\InvalidArgumentType</dt>
+                            <dd></dd>
+                                                                    </dl>
+                
+                                    <h4>Returns</h4>
+                    string
+                                    				
+                            </article>
+        </div>
+        <aside class="span4 detailsbar">
+            <h1><i class="icon-arrow-down"></i></h1>
+                                                            <dl>
+                                                                            </dl>
+            <h2>Tags</h2>
+            <table class="table table-condensed">
+                                    <tr><td colspan="2"><em>None found</em></td></tr>
+                            </table>
+        </aside>
+    </div>
+
+                                    <div class="row-fluid">
+        <div class="span8 content class">
+            <a id="method_isAnonymousUser" name="method_isAnonymousUser" class="anchor"></a>
+            <article class="method">
+                <h3 class="public ">isAnonymousUser()</h3>
+                <a href="#source-view" role="button" class="pull-right btn" data-toggle="modal" style="font-size: 1.1em; padding: 9px 14px"><i class="icon-code"></i></a>
+                <pre class="signature" style="margin-right: 54px;">isAnonymousUser() : boolean</pre>
+                <p><em>Check if current user is the anonymous user defined in ezsettings</em></p>
+                
+
+                
+                
+                                    <h4>Returns</h4>
+                    boolean
+                                    				
+                            </article>
+        </div>
+        <aside class="span4 detailsbar">
+            <h1><i class="icon-arrow-down"></i></h1>
+                                                            <dl>
+                                                                            </dl>
+            <h2>Tags</h2>
+            <table class="table table-condensed">
+                                    <tr><td colspan="2"><em>None found</em></td></tr>
+                            </table>
+        </aside>
+    </div>
+
+                                    <div class="row-fluid">
+        <div class="span8 content class">
+            <a id="method_getName" name="method_getName" class="anchor"></a>
+            <article class="method">
+                <h3 class="public ">getName()</h3>
+                <a href="#source-view" role="button" class="pull-right btn" data-toggle="modal" style="font-size: 1.1em; padding: 9px 14px"><i class="icon-code"></i></a>
+                <pre class="signature" style="margin-right: 54px;">getName() </pre>
+                <p><em></em></p>
+                
+
+                
+                
+                				
+                            </article>
+        </div>
+        <aside class="span4 detailsbar">
+            <h1><i class="icon-arrow-down"></i></h1>
+                                                            <dl>
+                                                                            </dl>
+            <h2>Tags</h2>
+            <table class="table table-condensed">
+                                    <tr><td colspan="2"><em>None found</em></td></tr>
+                            </table>
+        </aside>
+    </div>
+
+                                                                    </div>
+    </section>
+
+    <div id="source-view" class="modal hide fade" tabindex="-1" role="dialog" aria-labelledby="source-view-label" aria-hidden="true">
+        <div class="modal-header">
+            <button type="button" class="close" data-dismiss="modal" aria-hidden="true">×</button>
+            <h3 id="source-view-label">TwigFilterExtension.php</h3>
+        </div>
+        <div class="modal-body">
+            <pre data-src="../files/Services/Twig/TwigFilterExtension.php.txt" class="language-php line-numbers"></pre>
+        </div>
+    </div>
+
+    <footer class="row-fluid">
+        <section class="span10 offset2">
+            <section class="row-fluid">
+                <section class="span10 offset1">
+                    <section class="row-fluid footer-sections">
+                        <section class="span4">
+                                                        <h1><i class="icon-code"></i></h1>
+                            <div>
+                                <ul>
+                                                                            <li><a href="../namespaces/SQLI.html">\SQLI</a></li>
+                                                                    </ul>
+                            </div>
+                        </section>
+                        <section class="span4">
+                                                        <h1><i class="icon-bar-chart"></i></h1>
+                            <div>
+                                <ul>
+                                    <li><a href="../graphs/class.html">Class Hierarchy Diagram</a></li>
+                                </ul>
+                            </div>
+                        </section>
+                        <section class="span4">
+                                                        <h1><i class="icon-pushpin"></i></h1>
+                            <div>
+                                <ul>
+                                    <li><a href="../reports/errors.html">Errors</a></li>
+                                    <li><a href="../reports/markers.html">Markers</a></li>
+                                </ul>
+                            </div>
+                        </section>
+                    </section>
+                </section>
+            </section>
+            <section class="row-fluid">
+                <section class="span10 offset1">
+                    <hr />
+                    Documentation is powered by <a href="http://www.phpdoc.org/">phpDocumentor </a> and authored
+                    on July 22nd, 2020 at 09:34.
+                </section>
+            </section>
+        </section>
+    </footer>
+</div>
+
+</body>
+</html>
