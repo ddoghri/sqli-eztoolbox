@@ -31,9 +31,9 @@
     "twig/twig": "^1.0||^2.0",
     "doctrine/doctrine-bundle": "^2.0",
     "doctrine/orm": "^2.5",
-    "ezsystems/ezpublish-kernel": "^7.0",
+    "ezsystems/ezpublish-kernel": "^8.0",
     "ezsystems/ezplatform-admin-ui": "~2.1.0",
-    "white-october/pagerfanta-bundle": "^1.1"
+    "white-october/pagerfanta-bundle": "^2.2.1"
   },
   "require-dev": {
   },
