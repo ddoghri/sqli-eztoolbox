@@ -33,3 +33,9 @@ services:
             - "%sqli_ez_toolbox.entities%"
             - "%kernel.root_dir%"
             - "@annotation_reader"
+
+
+    # Handler Parameters
+    SQLI\EzToolboxBundle\Services\Parameter\ParameterHandlerMaintenance:
+        tags:
+            - { name: sqli.parameter_handler }

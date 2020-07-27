@@ -16,7 +16,7 @@ use Symfony\Component\DependencyInjection\Exception\RuntimeException;
 
 /**
  * Class TagsHelper
- * @package ExtranetBundle\Services
+ * @package SQLI\EzToolboxBundle\Services
  */
 class TagsHelper
 {

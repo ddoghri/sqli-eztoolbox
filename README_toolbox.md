@@ -25,3 +25,16 @@ fetch_children( locationId|Location, ?'contentTypeIdentifier' ) {# Retrieve all 
 render_children( locationId|Location, 'viewType', 'contentTypeIdentifier', ?'params to template )
 bundle_exists( 'bundle classname' ) {# Check if specified bundle is activated #}
 ```
+
+### Parameter Handler
+
+Your parameter handler must implement `SQLI\EzToolboxBundle\Services\Parameter\ParameterHandlerInterface` and your service's declaration must be tagged with `sqli.parameter_handler`
+
+Example with "maintenance" handler:
+```yaml
+    SQLI\EzToolboxBundle\Services\Parameter\ParameterHandlerMaintenance:
+        tags:
+            - { name: sqli.parameter_handler }
+```
+
+All handlers can be accessible through a repository : `SQLI\EzToolboxBundle\Services\Parameter\ParameterHandlerRepository`
