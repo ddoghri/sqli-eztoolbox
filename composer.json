@@ -27,12 +27,11 @@
   ],
   "require": {
     "php": "^7.1",
-    "symfony/symfony": "^3.4.2",
+    "symfony/symfony": ">=3.4.2",
     "twig/twig": "^1.0||^2.0",
     "doctrine/doctrine-bundle": "^1.6",
     "doctrine/orm": "^2.5",
-    "ezsystems/ezpublish-kernel": "^7.0",
-    "ezsystems/ezplatform-admin-ui": "^1.0",
+    "ezsystems/ezplatform": ">=2.0.0",
     "white-october/pagerfanta-bundle": "^1.1"
   },
   "require-dev": {
