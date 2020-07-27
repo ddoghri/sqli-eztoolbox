@@ -27,7 +27,8 @@
   ],
   "require": {
     "php": "^7.1",
-    "ezsystems/ezplatform": ">=2.0.0"
+    "ezsystems/ezplatform": ">=2.0.0",
+    "symfony/framework-bundle": ">3.4"
   },
   "require-dev": {
   },
