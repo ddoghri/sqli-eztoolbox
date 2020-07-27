@@ -27,9 +27,7 @@
   ],
   "require": {
     "php": "^7.1",
-    "ezsystems/ezplatform": ">=2.0.0",
-    "symfony/symfony": ">=3.4.2",
-    "doctrine/orm": "^2.5"
+    "ezsystems/ezplatform": ">=2.0.0"
   },
   "require-dev": {
   },
