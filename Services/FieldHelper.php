@@ -4,6 +4,7 @@ namespace SQLI\EzToolboxBundle\Services;
 
 use eZ\Publish\API\Repository\Values\Content\Content;
 use eZ\Publish\API\Repository\Values\Content\Field;
+use eZ\Publish\Core\FieldType\Selection\Value;
 use eZ\Publish\Core\Helper\FieldHelper as EzFieldHelper;
 use eZ\Publish\Core\Helper\TranslationHelper;
 
@@ -48,5 +49,45 @@ class FieldHelper
 
         // Field exists, check if value is empty
         return $this->fieldHelper->isFieldEmpty( $content, $fieldDefIdentifier, $forcedLanguage );
+    }
+
+
+    /**
+     * Return value of the selected option for an attribute 'ezselection'
+     *
+     * @param Content $content
+     * @param string  $fieldDefIdentifier
+     * @param null    $forcedLanguage
+     * @return string|null
+     */
+    public function ezselectionSelectedOptionValue( Content $content, $fieldDefIdentifier, $forcedLanguage = null )
+    {
+        $fieldDefinition = $content->getContentType()->getFieldDefinition( $fieldDefIdentifier );
+        if( $fieldDefinition->fieldTypeIdentifier == "ezselection" )
+        {
+            $fieldValue = $content->getFieldValue( $fieldDefIdentifier, $forcedLanguage );
+            if( $fieldValue instanceof Value )
+            {
+                $selectedValue = $fieldValue->selection;
+                $selectedValue = reset( $selectedValue );
+
+                if( $selectedValue !== false )
+                {
+                    // Search selected value in field definition
+                    $fieldSettings = $fieldDefinition->getFieldSettings();
+                    if( array_key_exists( 'options', $fieldSettings ) )
+                    {
+                        $selectionDefinition = $fieldSettings['options'];
+
+                        if( array_key_exists( $selectedValue, $selectionDefinition ) )
+                        {
+                            return $selectionDefinition[$selectedValue];
+                        }
+                    }
+                }
+            }
+        }
+
+        return null;
     }
 }

@@ -48,6 +48,7 @@ class TwigFilterExtension extends AbstractExtension
                 new TwigFunction( 'is_anonymous_user', [ $this, 'isAnonymousUser' ] ),
                 new TwigFunction( 'content_name', [ $this, 'getContentName' ] ),
                 new TwigFunction( 'ez_parameter', [ $this, 'getParameter' ] ),
+                new TwigFunction( 'ez_selection_value', [ $this->fieldHelper, 'ezselectionSelectedOptionValue' ] ),
             ];
     }
 
