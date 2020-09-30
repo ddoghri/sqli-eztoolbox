@@ -3,6 +3,8 @@ services:
         autowire: true
         autoconfigure: true
         public: false
+        bind:
+            $logDir: "%kernel.logs_dir%"
 
     SQLI\EzToolboxBundle\Command\:
         resource: "../../Command/*"

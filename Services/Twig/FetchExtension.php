@@ -9,7 +9,10 @@ use eZ\Publish\API\Repository\Repository;
 use eZ\Publish\API\Repository\Values\Content\Content;
 use eZ\Publish\API\Repository\Values\Content\Location;
 use eZ\Publish\Core\MVC\Symfony\View\ViewManagerInterface;
+use Monolog\Handler\StreamHandler;
+use Psr\Log\LoggerInterface;
 use SQLI\EzToolboxBundle\Services\FetchHelper;
+use SQLI\EzToolboxBundle\Services\Formatter\SqliSimpleLogFormatter;
 use Twig\Extension\AbstractExtension;
 use Twig\TwigFunction;
 
@@ -21,12 +24,20 @@ class FetchExtension extends AbstractExtension
     private $viewManager;
     /** @var Repository */
     private $repository;
+    /** @var LoggerInterface */
+    private $logger;
 
-    public function __construct( FetchHelper $fetchHelper, ViewManagerInterface $viewManager, Repository $repository )
+    public function __construct( FetchHelper $fetchHelper, ViewManagerInterface $viewManager, Repository $repository,
+                                 LoggerInterface $logger, $logDir )
     {
         $this->fetchHelper = $fetchHelper;
         $this->viewManager = $viewManager;
         $this->repository  = $repository;
+        $this->logger      = $logger;
+
+        $handler = new StreamHandler( "$logDir/sqli-eztoolbox_" . date( "Y-m-d" ) . '.log' );
+        $handler->setFormatter( new SqliSimpleLogFormatter() );
+        $this->logger->pushHandler( $handler );
     }
 
     public function getFunctions()
@@ -52,7 +63,8 @@ class FetchExtension extends AbstractExtension
      * @return string
      * @throws InvalidArgumentException
      */
-    public function renderChildren( $parentLocation, $viewType = ViewManagerInterface::VIEW_TYPE_LINE, $filterContentClass = null, $parameters = array() )
+    public function renderChildren( $parentLocation, $viewType = ViewManagerInterface::VIEW_TYPE_LINE,
+                                    $filterContentClass = null, $parameters = array() )
     {
         // Fetch children of $location
         $children = $this->fetchHelper->fetchChildren( $parentLocation, $filterContentClass );
@@ -76,10 +88,24 @@ class FetchExtension extends AbstractExtension
                     'index'   => $index,
                 ];
 
-            $parameters['location'] = $child;
-            $content                = $child->getContent();
-            $parameters['content']  = $content;
-            $render                 .= $this->viewManager->renderContent( $content, $viewType, array_merge( $parameters, $specificParameters ) );
+            try
+            {
+                $parameters['location'] = $child;
+                $content                = $child->getContent();
+                $parameters['content']  = $content;
+                $contentRender          = $this->viewManager->renderContent(
+                    $content,
+                    $viewType,
+                    array_merge( $parameters, $specificParameters ) );
+                $render                 .= $contentRender;
+            }
+            catch( \Exception $exception )
+            {
+                $this->logger->critical( "Exception thrown in " . __METHOD__ );
+                $this->logger->critical( $exception->getMessage() );
+                $this->logger->critical( $exception->getTraceAsString() );
+                continue;
+            }
         }
 
         return $render;
