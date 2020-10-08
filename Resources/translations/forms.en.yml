@@ -1,0 +1,8 @@
+role.policy.sqli_admin: 'SQLI Admin'
+role.policy.sqli_admin.all_functions: 'SQLI Admin / All functions'
+role.policy.sqli_admin.list_entities: 'SQLI Admin / See entities'
+role.policy.sqli_admin.entity_show: 'SQLI Admin / See an entity'
+role.policy.sqli_admin.entity_remove_element: 'SQLI Admin / Delete element'
+role.policy.sqli_admin.entity_edit_element: 'SQLI Admin / Edit element'
+role.policy.sqli_admin.entity_create_element: 'SQLI Admin / Create element'
+form.button.label.submit: "Save"

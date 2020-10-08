@@ -1,0 +1,38 @@
+entities.breadcrumb.list: "Entity"
+entities.page.title: "Manage entities"
+entities.list.table.header: "Manageable entities"
+entities.list.table.no_entities_configured: "No entity configured"
+entities.list.table.column_header.classname: "Classname"
+entities.list.table.column_header.description: "Description"
+entities.list.table.column_header.total_elements: "Number of lines"
+entities.list.table.span_title.properties: "Proprieties:"
+entity.page.title: "Display entity"
+entity.edition.page.title: "Modify a line"
+entity.creation.page.title: "Create a new line"
+entity.elements.table.header: "Entity \"%fqcn%\""
+entity.elements.table.no_elements: "None found"
+entity.elements.table.column_header.operations: "Operations"
+entity.button.alt.delete: "Delete"
+entity.button.alt.edit: "Edit"
+entity.button.alt.create: "Create"
+entity.button.alt.export_csv: "CSV Export"
+entity.element.deleted: "Element deleted"
+entity.element.updated: "Element updated"
+entity.element.created: "Element created"
+entity.element.cannot_delete: "Cannot delete"
+entity.element.cannot_update: "Cannot modify"
+entity.element.cannot_create: "Cannot create"
+
+# Filter form in entity view
+entity.button.label.filter: "Filter"
+entity.button.label.reset: "Reset"
+entity.field.placeholder.value: "Value"
+
+# Right Sidebar
+edit_element__sidebar_right__save: "Save"
+edit_element__sidebar_right__cancel: "Cancel"
+
+# Main bar
+sqli_admin__menu_root: "SQLI Admin"
+sqli_admin__menu_entities_tab__default: "Doctrine Entities"
+sqli_admin__menu_contenttypes_installer: "ContentType Installer"
