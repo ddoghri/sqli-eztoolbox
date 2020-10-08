@@ -10,6 +10,7 @@ use eZ\Publish\API\Repository\Values\Content\Content;
 use eZ\Publish\API\Repository\Values\Content\Location;
 use eZ\Publish\Core\MVC\Symfony\View\ViewManagerInterface;
 use Monolog\Handler\StreamHandler;
+use Monolog\Logger;
 use Psr\Log\LoggerInterface;
 use SQLI\EzToolboxBundle\Services\FetchHelper;
 use SQLI\EzToolboxBundle\Services\Formatter\SqliSimpleLogFormatter;
@@ -28,15 +29,15 @@ class FetchExtension extends AbstractExtension
     private $logger;
 
     public function __construct( FetchHelper $fetchHelper, ViewManagerInterface $viewManager, Repository $repository,
-                                 LoggerInterface $logger, $logDir )
+                                 $logDir )
     {
         $this->fetchHelper = $fetchHelper;
         $this->viewManager = $viewManager;
         $this->repository  = $repository;
-        $this->logger      = $logger;
 
         $handler = new StreamHandler( "$logDir/sqli-eztoolbox_" . date( "Y-m-d" ) . '.log' );
         $handler->setFormatter( new SqliSimpleLogFormatter() );
+        $this->logger = new Logger( 'SQLILogException' );
         $this->logger->pushHandler( $handler );
     }
 
