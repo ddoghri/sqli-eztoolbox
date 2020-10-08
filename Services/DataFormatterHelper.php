@@ -45,6 +45,14 @@ class DataFormatterHelper
                 return $this->human_filesize( $data, $pattern );
             case "datetime":
                 return $this->toDateTime( $data );
+            case "url":
+                $url = $data;
+                // Check if protocol is in $data
+                if( !preg_match( '#^http(?:s)?://#', $data ) )
+                {
+                    $url = "http://". $data;
+                }
+                return $url;
         }
 
         throw new DataFormatterException( "Unknown format name : $format" );
