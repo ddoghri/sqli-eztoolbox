@@ -62,6 +62,15 @@ sqli_ez_toolbox:
 ```
 Use "~" if the namespace of your classes observe PSR-0 rules or specify directory which contains them.
 
+##### Admin Logger
+
+Default values :
+```yml
+sqli_ez_toolbox:
+    admin_logger:
+        enabled: false
+```
+
 ##### ContentType Installer
 
 Default values :

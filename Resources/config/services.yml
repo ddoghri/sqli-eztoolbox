@@ -5,6 +5,7 @@ services:
         public: false
         bind:
             $logDir: "%kernel.logs_dir%"
+            $adminLoggerEnabled: "%sqli_ez_toolbox.admin_logger.enabled%"
 
     SQLI\EzToolboxBundle\Command\:
         resource: "../../Command/*"

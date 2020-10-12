@@ -40,6 +40,12 @@ class Configuration implements ConfigurationInterface
                         ->scalarNode( 'is_absolute_path' )->defaultFalse()->end()
                     ->end()
                 ->end() // contenttype_installer
+                ->arrayNode( 'admin_logger' )
+                    ->addDefaultsIfNotSet()
+                    ->children()
+                        ->scalarNode( 'enabled' )->isRequired()->defaultFalse()->end()
+                    ->end()
+                ->end() // admin logger
             ->end();
 
         return $treeBuilder;

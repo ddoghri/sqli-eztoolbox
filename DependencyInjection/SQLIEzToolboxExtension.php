@@ -32,5 +32,7 @@ class SQLIEzToolboxExtension extends Extension
                                   $config['contenttype_installer']['installation_directory'] );
         $container->setParameter( 'sqli_ez_toolbox.contenttype_installer.is_absolute_path',
                                   $config['contenttype_installer']['is_absolute_path'] );
+        $container->setParameter( 'sqli_ez_toolbox.admin_logger.enabled',
+                                  $config['admin_logger']['enabled'] );
     }
 }
