@@ -38,3 +38,7 @@ Example with "maintenance" handler:
 ```
 
 All handlers can be accessible through a repository : `SQLI\EzToolboxBundle\Services\Parameter\ParameterHandlerRepository`
+
+### PrepublishVersionSignal
+
+A signal slot exists to make an action just before Content publication : `SQLI\EzToolboxBundle\Services\Core\Signal\PrepublishVersionSignal`

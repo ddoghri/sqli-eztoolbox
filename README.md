@@ -14,7 +14,7 @@ composer require sqli/eztoolbox:dev-master
 
 ### Register the bundle
 
-Activate the bundle in `app/AppKernel.php`
+Activate the bundle in `app/AppKernel.php` AFTER all eZSystem/Ibexa bundles
 
 ```php
 // app/AppKernel.php
