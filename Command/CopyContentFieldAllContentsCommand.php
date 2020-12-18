@@ -6,6 +6,8 @@ use eZ\Publish\API\Repository\SearchService;
 use eZ\Publish\API\Repository\Values\Content\Content;
 use eZ\Publish\API\Repository\Values\Content\LocationQuery;
 use eZ\Publish\API\Repository\Values\Content\Query\Criterion;
+use eZ\Publish\API\Repository\Values\Content\Query\SortClause\ContentId;
+use eZ\Publish\Core\FieldType\DateAndTime\Value;
 use eZ\Publish\Core\Repository\Repository;
 use Symfony\Bundle\FrameworkBundle\Command\ContainerAwareCommand;
 use Symfony\Component\Console\Input\InputArgument;
@@ -124,7 +126,22 @@ class CopyContentFieldAllContentsCommand extends ContainerAwareCommand
                     $contentStructure = $this->contentService->newContentUpdateStruct();
 
                     // Get value of old field
-                    $valueToCopy = $contentDraft->getFieldValue( $this->oldContentFieldIdentifier, $availableLanguageCode )->__toString();
+                    switch( $contentDraft->getField( $this->oldContentFieldIdentifier, $availableLanguageCode )->fieldTypeIdentifier )
+                    {
+                        case "ezdate":
+                            /** @var \eZ\Publish\Core\FieldType\Date\Value $fieldValue */
+                            $fieldValue = $contentDraft->getFieldValue( $this->oldContentFieldIdentifier, $availableLanguageCode );
+                            $valueToCopy = $fieldValue->date;
+                            break;
+                        case "ezdatetime":
+                            /** @var Value $fieldValue */
+                            $fieldValue = $contentDraft->getFieldValue( $this->oldContentFieldIdentifier, $availableLanguageCode );
+                            $valueToCopy = $fieldValue->value;
+                            break;
+                        default:
+                            $valueToCopy = $contentDraft->getFieldValue( $this->oldContentFieldIdentifier, $availableLanguageCode )->__toString();
+                            break;
+                    }
 
                     $update = true;
                     // Format data value according to field type
@@ -151,6 +168,7 @@ class CopyContentFieldAllContentsCommand extends ContainerAwareCommand
                             {
                                 continue 2;
                             }
+                            break;
                     }
 
                     if( $update )
@@ -233,6 +251,7 @@ class CopyContentFieldAllContentsCommand extends ContainerAwareCommand
         $query->performCount = true;
         $query->limit        = $limit;
         $query->offset       = $offset;
+        $query->sortClauses  = [ new ContentId() ];
         $results             = $this->searchService->findContent( $query );
         $items               = [];
 
