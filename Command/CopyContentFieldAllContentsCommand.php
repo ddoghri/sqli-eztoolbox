@@ -175,16 +175,24 @@ class CopyContentFieldAllContentsCommand extends ContainerAwareCommand
                     {
                         if( !$this->dryrun )
                         {
-                            // Set value on new field
-                            $contentStructure->setField( $this->newContentFieldIdentifier, $valueToCopy, $availableLanguageCode );
+                            try
+                            {
+                                // Set value on new field
+                                $contentStructure->setField( $this->newContentFieldIdentifier, $valueToCopy, $availableLanguageCode );
 
-                            // Update draft
-                            $contentDraft = $this->contentService->updateContent( $contentDraft->getVersionInfo(), $contentStructure );
-                            // Publish draft
-                            $this->contentService->publishVersion( $contentDraft->getVersionInfo() );
+                                // Update draft
+                                $contentDraft = $this->contentService->updateContent( $contentDraft->getVersionInfo(), $contentStructure );
+
+                                // Publish draft
+                                $this->contentService->publishVersion( $contentDraft->getVersionInfo() );
+
+                                $output->writeln( "modified" );
+                            }
+                            catch( \Exception $exception )
+                            {
+                                $output->writeln( "<error>failed</error>" );
+                            }
                         }
-
-                        $output->writeln( "modified" );
                     }
                     else
                     {
