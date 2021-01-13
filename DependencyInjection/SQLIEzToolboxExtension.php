@@ -34,5 +34,23 @@ class SQLIEzToolboxExtension extends Extension
                                   $config['contenttype_installer']['is_absolute_path'] );
         $container->setParameter( 'sqli_ez_toolbox.admin_logger.enabled',
                                   $config['admin_logger']['enabled'] );
+        $container->setParameter( 'sqli_ez_toolbox.storage_filename_cleaner.enabled',
+                                  $config['storage_filename_cleaner']['enabled'] );
+
+        if( $config['storage_filename_cleaner']['enabled'] )
+        {
+            $container->setParameter(
+                'ezpublish.fieldType.ezimage.externalStorage.class',
+                'SQLI\EzToolboxBundle\Services\Core\FieldType\ImageStorage'
+            );
+            $container->setParameter(
+                'ezpublish.fieldType.ezmedia.externalStorage.class',
+                'SQLI\EzToolboxBundle\Services\Core\FieldType\MediaStorage'
+            );
+            $container->setParameter(
+                'ezpublish.fieldType.ezbinaryfile.externalStorage.class',
+                'SQLI\EzToolboxBundle\Services\Core\FieldType\BinaryFileStorage'
+            );
+        }
     }
 }

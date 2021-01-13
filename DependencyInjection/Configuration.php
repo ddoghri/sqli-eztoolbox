@@ -46,6 +46,12 @@ class Configuration implements ConfigurationInterface
                         ->scalarNode( 'enabled' )->isRequired()->defaultFalse()->end()
                     ->end()
                 ->end() // admin logger
+                ->arrayNode( 'storage_filename_cleaner' )
+                    ->addDefaultsIfNotSet()
+                    ->children()
+                        ->scalarNode( 'enabled' )->isRequired()->defaultFalse()->end()
+                    ->end()
+                ->end() // end storage_filename_cleaner
             ->end();
 
         return $treeBuilder;

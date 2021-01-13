@@ -47,45 +47,26 @@ php bin/console cache:clear
 
 ### Parameters
 
-##### Entity Manager
+##### Full example
 
-Configure directories (and namespaces if not according to PSR-0 rules) entities to lookup :
-
-```yml
+```yaml
 sqli_ez_toolbox:
     entities:
-        - { directory: 'Acme/AcmeBundle/Entity/Doctrine' }
-        - { directory: 'Acme/AcmeBundle2/Entity/Doctrine', namespace: 'Acme\AcmeBundle2NoPSR0\ORM\Doctrine' }
+        - { directory: 'AcmeBundle/Entity/Doctrine' }
     contenttype_installer:
         installation_directory: app/content_types
         is_absolute_path: false
-```
-Use "~" if the namespace of your classes observe PSR-0 rules or specify directory which contains them.
-
-##### Admin Logger
-
-Default values :
-```yml
-sqli_ez_toolbox:
     admin_logger:
-        enabled: false
+        enabled: true
+    storage_filename_cleaner:
+        enabled: true
 ```
 
-##### ContentType Installer
-
-Default values :
-```yml
-sqli_ez_toolbox:
-    contenttype_installer:
-        installation_directory: app/content_types
-        is_absolute_path: false
-```
+### How to use
 
 *(Optional) Change label tabname*
 
 You can change label of the default tab using this translation key for domain `sqli_admin` : **sqli_admin__menu_entities_tab__default**
-
-### How to use
 
 [Entities Manager](README_entities_manager.md)
 

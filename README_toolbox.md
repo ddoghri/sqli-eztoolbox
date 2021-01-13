@@ -1,6 +1,17 @@
 SQLI ContentType Installer
 ========================
 
+### Configuration
+
+Default values :
+```yml
+sqli_ez_toolbox:
+    admin_logger:
+        enabled: false
+    storage_filename_cleaner:
+        enabled: true
+```
+
 ### Services
 
 ```shell script
@@ -42,3 +53,13 @@ All handlers can be accessible through a repository : `SQLI\EzToolboxBundle\Serv
 ### PrepublishVersionSignal
 
 A signal slot exists to make an action just before Content publication : `SQLI\EzToolboxBundle\Services\Core\Signal\PrepublishVersionSignal`
+
+### Admin Logger
+
+Save some actions made in backoffice into a log file
+
+### Storage filename cleaner
+
+Clean name of the file uploaded in backoffice when moving into storage to prevent SEO penalties.
+Change special characters to their latin correspondence when it's possible (else they will be removed), replace spaces and force lower case.
+ 
