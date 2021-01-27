@@ -62,4 +62,18 @@ Save some actions made in backoffice into a log file
 
 Clean name of the file uploaded in backoffice when moving into storage to prevent SEO penalties.
 Change special characters to their latin correspondence when it's possible (else they will be removed), replace spaces and force lower case.
- 
+
+### IP CIDR Validator
+
+You can check if an IP is in CIDR range with this :
+
+```php
+$ipConstraint = new \SQLI\EzToolboxBundle\Validator\Constraints\IpCidr(['cidr' => "192.168.0.0/24"]);
+$errors = $this->validator->validate( '192.168.1.10', $ipConstraint );
+
+if(count($errors)) {
+    $message = $errors[0]->getMessage();
+}
+```
+
+In this case, $message contains `192.168.1.10 not validated with CIDR mask 192.168.0.0/24`
