@@ -9,6 +9,7 @@ services:
         bind:
             $logDir: "%kernel.logs_dir%"
             $adminLoggerEnabled: "%sqli_ez_toolbox.admin_logger.enabled%"
+            $siteaccessAdminGroup: "%ezpublish.siteaccess.groups%"
 
     SQLI\EzToolboxBundle\Command\:
         resource: "../../Command/*"
