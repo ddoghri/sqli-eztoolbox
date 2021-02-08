@@ -51,7 +51,7 @@ class BackOfficeActionsLoggerListener implements EventSubscriberInterface
         $this->adminLoggerEnabled = (bool)$adminLoggerEnabled;
 
         // Handler and formatter
-        $logHandler = new StreamHandler( sprintf( "%s/log-%s-%s.log",
+        $logHandler = new StreamHandler( sprintf( "%s/log_%s-%s.log",
                                                   $logDir,
                                                   $siteAccess->name,
                                                   date( "Y-m-d" ) ) );
