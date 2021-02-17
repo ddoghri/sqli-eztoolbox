@@ -18,6 +18,7 @@ use Netgen\TagsBundle\Core\SignalSlot\Signal\TagsService\CreateTagSignal;
 use Netgen\TagsBundle\Core\SignalSlot\Signal\TagsService\DeleteTagSignal;
 use Netgen\TagsBundle\Core\SignalSlot\Signal\TagsService\UpdateTagSignal;
 use SQLI\EzToolboxBundle\Services\Formatter\SqliSimpleLogFormatter;
+use SQLI\EzToolboxBundle\Services\SiteAccessUtilsTrait;
 use Symfony\Component\EventDispatcher\EventSubscriberInterface;
 use Symfony\Component\HttpFoundation\Request;
 use Symfony\Component\HttpFoundation\RequestStack;
@@ -25,8 +26,8 @@ use Symfony\Component\Security\Core\Authentication\Token\Storage\TokenStorage;
 
 class BackOfficeActionsLoggerListener implements EventSubscriberInterface
 {
-    /** @var SiteAccess */
-    private $siteAccess;
+    use SiteAccessUtilsTrait;
+
     /** @var TokenStorage */
     private $tokenStorage;
     /** @var Repository */
@@ -39,26 +40,21 @@ class BackOfficeActionsLoggerListener implements EventSubscriberInterface
     private $tagsService;
     /** @var bool */
     private $adminLoggerEnabled;
-    /** @var array */
-    private $siteaccessAdminGroup;
 
     public function __construct(
-        SiteAccess $siteAccess,
         TokenStorage $tokenStorage,
         Repository $repository,
         $logDir,
         RequestStack $requestStack,
         TagsService $tagsService,
         $adminLoggerEnabled,
-        $siteaccessAdminGroup
+        SiteAccess $siteAccess
     ) {
-        $this->siteAccess           = $siteAccess;
-        $this->tokenStorage         = $tokenStorage;
-        $this->repository           = $repository;
-        $this->request              = $requestStack->getCurrentRequest();
-        $this->tagsService          = $tagsService;
-        $this->adminLoggerEnabled   = (bool)$adminLoggerEnabled;
-        $this->siteaccessAdminGroup = $siteaccessAdminGroup;
+        $this->tokenStorage       = $tokenStorage;
+        $this->repository         = $repository;
+        $this->request            = $requestStack->getCurrentRequest();
+        $this->tagsService        = $tagsService;
+        $this->adminLoggerEnabled = (bool)$adminLoggerEnabled;
 
         // Handler and formatter
         $logHandler = new StreamHandler(
@@ -104,10 +100,7 @@ class BackOfficeActionsLoggerListener implements EventSubscriberInterface
     public function onAPISignal(SignalEvent $event)
     {
         // Log only for admin siteaccesses
-        if (!$this->adminLoggerEnabled || !in_array(
-                $this->siteAccess->name,
-                $this->siteaccessAdminGroup['admin_group']
-            )) {
+        if (!$this->adminLoggerEnabled || !$this->isAdminSiteAccess()) {
             return;
         }
 
