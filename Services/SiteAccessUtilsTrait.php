@@ -3,6 +3,7 @@
 namespace SQLI\EzToolboxBundle\Services;
 
 use eZ\Publish\Core\MVC\Symfony\SiteAccess;
+use Symfony\Component\DependencyInjection\ParameterBag\ParameterBagInterface;
 
 trait SiteAccessUtilsTrait
 {
@@ -13,14 +14,19 @@ trait SiteAccessUtilsTrait
 
     /**
      * autowiring
+     *
      * @required
-     * @param SiteAccess $siteAccess
-     * @param array      $siteaccessAdminGroup
+     * @param SiteAccess            $siteAccess
+     * @param ParameterBagInterface $parameterBag
      */
-    public function setSiteAccessSettings(SiteAccess $siteAccess, $siteaccessAdminGroup)
+    public function setSiteAccessSettings(SiteAccess $siteAccess, ParameterBagInterface $parameterBag)
     {
         $this->siteAccess           = $siteAccess;
-        $this->siteaccessAdminGroup = $siteaccessAdminGroup;
+        $this->siteaccessAdminGroup = [];
+        if ($parameterBag->has('ezpublish.siteaccess.groups')) {
+            $siteaccessAdminGroup       = $parameterBag->get('ezpublish.siteaccess.groups');
+            $this->siteaccessAdminGroup = $siteaccessAdminGroup['admin_group'];
+        }
     }
 
     /**
@@ -35,7 +41,7 @@ trait SiteAccessUtilsTrait
             $siteaccess = $this->getSiteAccessName();
         }
 
-        return in_array($siteaccess, $this->siteaccessAdminGroup['admin_group']);
+        return in_array($siteaccess, $this->siteaccessAdminGroup);
     }
 
     /**
