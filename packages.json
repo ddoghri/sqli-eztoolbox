@@ -1,0 +1,8 @@
+{
+    "repositories": [
+        {
+            "type": "composer",
+            "url": "https://github.com/ddoghri/sqli-eztoolbox"
+        }
+    ]
+}
