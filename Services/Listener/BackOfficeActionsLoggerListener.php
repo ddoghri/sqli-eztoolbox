@@ -88,7 +88,7 @@ class BackOfficeActionsLoggerListener implements EventSubscriberInterface
     public static function getSubscribedEvents()
     {
         return [
-            MVCEvents::API_SIGNAL => 'onAPISignal',
+            //MVCEvents::API_SIGNAL => 'onAPISignal',
         ];
     }
 
