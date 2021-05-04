@@ -78,7 +78,7 @@ class SQLIAnnotationManager
                 $namespace = str_replace( '/', '\\', $directory );
             }
 
-            $path   = $this->rootDir . '/../src/' . $directory;
+            $path   = $this->rootDir . '/src/' . $directory;
             $finder = new Finder();
             $finder->depth( 0 )->files()->in( $path );
 
