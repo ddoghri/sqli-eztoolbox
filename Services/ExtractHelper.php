@@ -38,8 +38,8 @@ class ExtractHelper
     {
         $content = [];
         $aContentType = [];
-
-        $this->repository->setCurrentUser( $this->repository->getUserService()->loadUser( 14 ) );
+        $user = $this->repository->getUserService()->loadUserByLogin('admin');
+        $this->repository->getPermissionResolver()->setCurrentUserReference($user);
 
         $contentTypeService = $this->repository->getContentTypeService();
 

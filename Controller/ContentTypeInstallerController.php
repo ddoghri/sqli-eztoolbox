@@ -9,7 +9,7 @@
 namespace SQLI\EzToolboxBundle\Controller;
 
 use eZ\Publish\API\Repository\ContentTypeService;
-use eZ\Publish\Core\MVC\Symfony\Locale\LocaleConverter;
+use eZ\Publish\Core\MVC\Symfony\Locale\LocaleConverterInterface;
 use EzSystems\EzPlatformAdminUiBundle\Controller\Controller as BaseController;
 use SQLI\EzToolboxBundle\Services\ExtractHelper;
 use Symfony\Component\HttpFoundation\RequestStack;
@@ -17,9 +17,11 @@ use Symfony\Component\HttpFoundation\Response;
 
 class ContentTypeInstallerController extends BaseController
 {
-    public function listAction( ContentTypeService $contentTypeService, LocaleConverter $localeConverter,
-                                RequestStack $requestStack )
-    {
+    public function listAction(
+        ContentTypeService $contentTypeService,
+        LocaleConverterInterface $localeConverter,
+        RequestStack $requestStack
+    ) {
         $locale = $requestStack->getCurrentRequest()->getLocale();
 
         //Retrieve all the groups

@@ -121,8 +121,8 @@ class CreateOrUpdateContentTypeCommand extends ContainerAwareCommand
             $repository         = $this->getContainer()->get( 'ezpublish.api.repository' );
             $contentTypeService = $repository->getContentTypeService();
             $fieldTypeService   = $repository->getFieldTypeService();
-
-            $repository->setCurrentUser( $repository->getUserService()->loadUser( 14 ) );
+            $user = $repository->getUserService()->loadUserByLogin('admin');
+            $repository->getPermissionResolver()->setCurrentUserReference($user);
 
             //Mise a jour de tous les user modifier à 14 pour eviter les problèmes de brouillons
             try

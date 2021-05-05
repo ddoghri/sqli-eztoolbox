@@ -12,13 +12,13 @@ use SQLI\EzToolboxBundle\Form\EntityManager\FilterType;
 use SQLI\EzToolboxBundle\Services\EntityHelper;
 use SQLI\EzToolboxBundle\Services\FilterEntityHelper;
 use SQLI\EzToolboxBundle\Services\TabEntityHelper;
-use Symfony\Bundle\FrameworkBundle\Controller\Controller;
+use Symfony\Bundle\FrameworkBundle\Controller\AbstractController;
 use Symfony\Component\HttpFoundation\RedirectResponse;
 use Symfony\Component\HttpFoundation\Request;
 use Symfony\Component\HttpFoundation\Response;
 use Symfony\Component\HttpFoundation\StreamedResponse;
 
-class EntitiesController extends Controller
+class EntitiesController extends AbstractController
 {
     /**
      * Display all entities annotated with SQLIAdmin\Entity
@@ -36,7 +36,7 @@ class EntitiesController extends Controller
         $params['tabname'] = $tabname;
         $params['classes'] = $tabs[$tabname];
 
-        return $this->render( 'SQLIEzToolboxBundle:Entities:listAllEntities.html.twig', $params );
+        return $this->render( '@SQLIEzToolbox\Entities\listAllEntities.html.twig', $params );
     }
 
     /**
@@ -94,7 +94,7 @@ class EntitiesController extends Controller
         // Set pager for template
         $params['pager'] = $pager;
 
-        return $this->render( 'SQLIEzToolboxBundle:Entities:showEntity.html.twig', $params );
+        return $this->render( '@SQLIEzToolbox\Entities\showEntity.html.twig', $params );
     }
 
     /**
@@ -233,7 +233,7 @@ class EntitiesController extends Controller
                             $params['class'] = $entity['class'];
 
                             return $this
-                                ->render( 'SQLIEzToolboxBundle:Entities:editElement.html.twig',
+                                ->render( '@SQLIEzToolbox\Entities\editElement.html.twig',
                                           $params );
                         }
                     }
@@ -315,7 +315,7 @@ class EntitiesController extends Controller
                         $params['tabname'] = $entityAnnotation->getTabname();
 
                         return $this
-                            ->render( 'SQLIEzToolboxBundle:Entities:createElement.html.twig',
+                            ->render( '@SQLIEzToolbox\Entities\createElement.html.twig',
                                       $params );
                     }
                 }
@@ -373,7 +373,7 @@ class EntitiesController extends Controller
                     // Find element
                     $entityInformations = $entityHelper->getEntity( $fqcn, true );
 
-                    $response->setCallback( function() use ( $entityInformations )
+                    $response->setCallback( function() use ( $entityInformations, $entityHelper )
                     {
                         // Open buffer
                         $resource = fopen( 'php://output', 'w+' );
