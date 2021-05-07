@@ -1,6 +1,3 @@
-parameters:
-    ezpublish.signalslot.service.content.class: SQLI\EzToolboxBundle\Services\Core\ContentService
-
 services:
     _defaults:
         autowire: true
