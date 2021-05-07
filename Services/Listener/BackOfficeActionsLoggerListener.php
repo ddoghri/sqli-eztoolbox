@@ -2,38 +2,43 @@
 
 namespace SQLI\EzToolboxBundle\Services\Listener;
 
-use eZ\Publish\API\Repository\Exceptions\NotFoundException;
-use eZ\Publish\API\Repository\Exceptions\UnauthorizedException;
+use eZ\Publish\API\Repository\Events\Content\CopyContentEvent;
+use eZ\Publish\API\Repository\Events\Content\DeleteContentEvent;
+use eZ\Publish\API\Repository\Events\Content\HideContentEvent;
+use eZ\Publish\API\Repository\Events\Content\PublishVersionEvent;
+use eZ\Publish\API\Repository\Events\Content\RevealContentEvent;
+use eZ\Publish\API\Repository\Events\Location\CreateLocationEvent;
+use eZ\Publish\API\Repository\Events\Location\DeleteLocationEvent;
+use eZ\Publish\API\Repository\Events\Location\HideLocationEvent;
+use eZ\Publish\API\Repository\Events\Location\UnhideLocationEvent;
+use eZ\Publish\API\Repository\Events\Trash\TrashEvent;
+use eZ\Publish\API\Repository\Events\User\CreateUserEvent;
+use eZ\Publish\API\Repository\Events\User\DeleteUserEvent;
+use eZ\Publish\API\Repository\Events\User\UpdateUserEvent;
 use eZ\Publish\API\Repository\Repository;
-use eZ\Publish\Core\MVC\Symfony\Event\SignalEvent;
-use eZ\Publish\Core\MVC\Symfony\MVCEvents;
 use eZ\Publish\Core\MVC\Symfony\Security\UserInterface;
 use eZ\Publish\Core\MVC\Symfony\SiteAccess;
-use eZ\Publish\Core\SignalSlot\Signal;
-use eZ\Publish\Core\SignalSlot\Signal\ContentService\PublishVersionSignal;
 use Monolog\Handler\StreamHandler;
 use Monolog\Logger;
-use Netgen\TagsBundle\Core\Repository\TagsService;
-use Netgen\TagsBundle\Core\SignalSlot\Signal\TagsService\CreateTagSignal;
-use Netgen\TagsBundle\Core\SignalSlot\Signal\TagsService\DeleteTagSignal;
-use Netgen\TagsBundle\Core\SignalSlot\Signal\TagsService\UpdateTagSignal;
+use Netgen\TagsBundle\API\Repository\TagsService;
 use SQLI\EzToolboxBundle\Services\Formatter\SqliSimpleLogFormatter;
 use SQLI\EzToolboxBundle\Services\SiteAccessUtilsTrait;
 use Symfony\Component\EventDispatcher\EventSubscriberInterface;
 use Symfony\Component\HttpFoundation\Request;
 use Symfony\Component\HttpFoundation\RequestStack;
-use Symfony\Component\Security\Core\Authentication\Token\Storage\TokenStorage;
+use Symfony\Component\Security\Core\Authentication\Token\Storage\TokenStorageInterface;
+
 
 class BackOfficeActionsLoggerListener implements EventSubscriberInterface
 {
     use SiteAccessUtilsTrait;
 
-    /** @var TokenStorage */
+    /** @var TokenStorageInterface */
     private $tokenStorage;
     /** @var Repository */
     private $repository;
-    /** @var Logger */
-    private $logger;
+    /** @var string */
+    private $logDir;
     /** @var Request */
     private $request;
     /** @var TagsService */
@@ -41,10 +46,20 @@ class BackOfficeActionsLoggerListener implements EventSubscriberInterface
     /** @var bool */
     private $adminLoggerEnabled;
 
+    /**
+     * BackOfficeActionsLoggerListener constructor.
+     * @param TokenStorageInterface $tokenStorage
+     * @param Repository $repository
+     * @param string $logDir
+     * @param RequestStack $requestStack
+     * @param TagsService $tagsService
+     * @param $adminLoggerEnabled
+     * @param SiteAccess $siteAccess
+     */
     public function __construct(
-        TokenStorage $tokenStorage,
+        TokenStorageInterface $tokenStorage,
         Repository $repository,
-        $logDir,
+        string $logDir,
         RequestStack $requestStack,
         TagsService $tagsService,
         $adminLoggerEnabled,
@@ -55,19 +70,19 @@ class BackOfficeActionsLoggerListener implements EventSubscriberInterface
         $this->request            = $requestStack->getCurrentRequest();
         $this->tagsService        = $tagsService;
         $this->adminLoggerEnabled = (bool)$adminLoggerEnabled;
-
-        // Handler and formatter
+        $this->logDir = $logDir;
+        $this->siteAccess = $siteAccess;
         $logHandler = new StreamHandler(
             sprintf(
                 "%s/log_%s-%s.log",
-                $logDir,
-                $siteAccess->name,
+                $this->logDir,
+                $this->siteAccess->name,
                 date("Y-m-d")
             )
         );
         $logHandler->setFormatter(new SqliSimpleLogFormatter());
 
-        $this->logger = new Logger('Log_' . $siteAccess->name);
+        $this->logger = new Logger('Log_' . $this->siteAccess->name);
         $this->logger->pushHandler($logHandler);
     }
 
@@ -88,467 +103,271 @@ class BackOfficeActionsLoggerListener implements EventSubscriberInterface
     public static function getSubscribedEvents()
     {
         return [
-            //MVCEvents::API_SIGNAL => 'onAPISignal',
+              TrashEvent::class =>  'logIfTrashSignal',
+              PublishVersionEvent::class => 'logIfPublishVersionSignal',
+              CopyContentEvent::class => 'logIfCopyContentSignal',
+              HideContentEvent::class => 'logIfVisibilityContentSignal',
+              RevealContentEvent::class => 'logIfVisibilityContentSignal',
+              DeleteContentEvent::class => 'logIfDeleteContentSignal',
+              CreateLocationEvent::class => 'logIfCreateLocationSignal',
+              HideLocationEvent::class => 'logIfVisibilityLocationSignal',
+              UnhideLocationEvent::class => 'logIfVisibilityLocationSignal',
+              DeleteLocationEvent::class => 'logIfDeleteLocationSignal',
+              CreateUserEvent::class => 'logIfUserSignal',
+              UpdateUserEvent::class => 'logIfUserSignal',
+              DeleteUserEvent::class => 'logIfUserSignal',
         ];
+
     }
 
     /**
-     * @param SignalEvent $event
-     * @throws NotFoundException
-     * @throws UnauthorizedException
+     * @param PublishVersionEvent $publishVersionEvent
      */
-    public function onAPISignal(SignalEvent $event)
+    public function logIfPublishVersionSignal(PublishVersionEvent $publishVersionEvent)
     {
-        // Log only for admin siteaccesses
         if (!$this->adminLoggerEnabled || !$this->isAdminSiteAccess()) {
             return;
         }
-
-        $signal = $event->getSignal();
-
-        // Content signals
-        $this->logIfPublishVersionSignal($signal);
-        $this->logIfCopyContentSignal($signal);
-        $this->logIfVisibilityContentSignal($signal);
-        $this->logIfDeleteContentSignal($signal);
-        // Location signals
-        $this->logIfCreateLocationSignal($signal);
-        $this->logIfCopySubtreeSignal($signal);
-        $this->logIfMoveSubtreeSignal($signal);
-        $this->logIfVisibilityLocationSignal($signal);
-        $this->logIfDeleteLocationSignal($signal);
-        // Tag signals
-        $this->logIfCreateTagSignal($signal);
-        $this->logIfUpdateTagSignal($signal);
-        $this->logIfDeleteTagSignal($signal);
-        // User signals
-        $this->logIfUserSignal($signal);
-        // Trash signals
-        $this->logIfTrashSignal($signal);
-        // Assign section
-        $this->logIfAssignSectionSignal($signal);
-        // Object State
-        $this->logIfSetContentStateSignal($signal);
+        $content = $publishVersionEvent->getContent() ;
+        $versionId = $publishVersionEvent->getVersionInfo()->versionNo;
+        $this->logger->notice("Content publish :");
+        $this->logUserInformations();
+        if(empty($content)) {
+            $this->logger->notice("  - content : not found");
+            return;
+        }
+        $this->logger->notice("  - content name : " . $content->getName());
+        $this->logger->notice("  - content id : " . $content->id);
+        $this->logger->notice("  - content version : " . $versionId);
     }
 
     /**
-     * @param $signal Signal
+     * @param CopyContentEvent $copyContentEvent
      */
-    private function logIfPublishVersionSignal($signal)
+    public function logIfCopyContentSignal(CopyContentEvent $copyContentEvent)
     {
-        if ($signal instanceof PublishVersionSignal) {
-            $contentId = $signal->contentId;
-            $versionId = $signal->versionNo;
-            $this->logger->addNotice("Content publish :");
-            $this->logUserInformations();
-            try {
-                $content = $this->repository->getContentService()->loadContent($contentId, [], $versionId);
-                $this->logger->addNotice("  - content name : " . $content->getName());
-            } catch (\Exception $exception) {
-                $this->logger->addError("  - content : not found");
-            }
-            $this->logger->addNotice("  - content id : " . $contentId);
-            $this->logger->addNotice("  - content version : " . $versionId);
+        if (!$this->adminLoggerEnabled || !$this->isAdminSiteAccess()) {
+            return;
+        }
+        $this->logger->notice("Copy Content2 :");
+        $this->logUserInformations();
+        $srcContentInfo = $copyContentEvent->getContentInfo();
+        $dstParentLocationId = $copyContentEvent->getDestinationLocationCreateStruct()->parentLocationId;
+
+        if(empty($srcContentInfo)) {
+            $this->logger->notice("  - content : not found");
+            return;
+        }
+        $this->logger->notice("  - source content name : " . $srcContentInfo->name);
+        $this->logger->notice("  - source content id : " . $srcContentInfo->id);
+        $this->logger->notice("  - source location id : " . $srcContentInfo->mainLocationId);
+        $this->logger->notice("  - source content version : " . $srcContentInfo->currentVersionNo);
+        $this->logger->notice("  - destination location id : " . $dstParentLocationId);
+    }
+
+    /**
+     * @param DeleteContentEvent $deleteContentEvent
+     */
+    public function logIfDeleteContentSignal(DeleteContentEvent $deleteContentEvent)
+    {
+        if (!$this->adminLoggerEnabled || !$this->isAdminSiteAccess()) {
+            return;
+        }
+        $this->logger->addNotice("Content delete :");
+        $this->logUserInformations();
+        $contentInfo = $deleteContentEvent->getContentInfo();
+        $locations = $deleteContentEvent->getLocations();
+
+        if (empty($content)) {
+            $this->logger->error("  - content : not found, may be it was the latest location ?");
+            return;
+        }
+        $this->logger->addNotice("  - content id : " . $contentInfo->id);
+        $this->logger->addNotice("  - location ids : " . implode(',', $locations));
+    }
+
+    /**
+     * @param CreateLocationEvent $createLocationEvent
+     */
+    public function logIfCreateLocationSignal(CreateLocationEvent $createLocationEvent)
+    {
+        if (!$this->adminLoggerEnabled || !$this->isAdminSiteAccess()) {
+            return;
+        }
+        $this->logger->notice("Location create :");
+        $this->logUserInformations();
+        $location = $createLocationEvent->getLocation();
+        $contentInfo = $createLocationEvent->getContentInfo();
+        $newParentLocation = $createLocationEvent->getLocationCreateStruct()->parentLocationId;
+        if (empty($contentInfo)) {
+            $this->logger->error("  - content : not found");
+            return;
+        }
+
+        $this->logger->notice("  - location id : " . $location->id);
+        $this->logger->notice("  - content id : " . $contentInfo->id);
+        $this->logger->notice("  - content name : " . $contentInfo->name);
+        // New Parent
+        $this->logger->notice("  - new parent location id : " . $newParentLocation);
+        try {
+            $newParentLocation = $this->repository->getLocationService()->loadLocation($newParentLocation);
+            $this->logger->notice(
+                "  - new parent content name : " . $newParentLocation->getContent()->getName()
+            );
+        } catch (\Exception $exception) {
+            $this->logger->error("  - new parent content : not found");
         }
     }
 
     /**
-     * @param $signal Signal
+     * @param DeleteLocationEvent $deleteLocationEvent
      */
-    private function logIfCopyContentSignal($signal)
+    public function logIfDeleteLocationSignal(DeleteLocationEvent $deleteLocationEvent)
     {
-        if ($signal instanceof Signal\ContentService\CopyContentSignal) {
-            $srcContentId = $signal->srcContentId;
-            $srcVersionId = $signal->srcVersionNo;
-            $dstContentId = $signal->dstContentId;
-            $dstVersionId = $signal->dstVersionNo;
-            $this->logger->addNotice("Content publish :");
-            $this->logUserInformations();
-            try {
-                $srcContent = $this->repository->getContentService()->loadContent($srcContentId, [], $srcVersionId);
-                $this->logger->addNotice("  - content name : " . $srcContent->getName());
-            } catch (\Exception $exception) {
-                $this->logger->addError("  - content : not found");
-            }
-            $this->logger->addNotice("  - original content id : " . $srcContentId);
-            $this->logger->addNotice("  - original content version : " . $srcVersionId);
-            $this->logger->addNotice("  - destination content id : " . $dstContentId);
-            $this->logger->addNotice("  - destination content version : " . $dstVersionId);
-
-            try {
-                $dstParentLocationId = $signal->dstParentLocationId;
-                $dstParentLocation   = $this->repository->getLocationService()->loadLocation($dstParentLocationId);
-                $this->logger->addNotice("  - destination parent location id : " . $dstParentLocationId);
-                $this->logger->addNotice(
-                    "  - destination parent content name : " . $dstParentLocation->getContent()->getName()
-                );
-            } catch (\Exception $exception) {
-                $this->logger->addError("  - destination parent location : not found");
-            }
+        if (!$this->adminLoggerEnabled || !$this->isAdminSiteAccess()) {
+            return;
         }
+        $location = $deleteLocationEvent->getLocation();
+        $this->logger->notice("Location delete :");
+        $this->logUserInformations();
+
+        if (empty($Location)) {
+            $this->logger->error("  - Location : not found");
+            return;
+        }
+
+        $this->logger->notice("  - location id : " . $location->id);
+        $this->logger->notice("  - parent location id : " . $location->parentLocationId);
+        $this->logger->notice("  - content id : " . $location->contentId);
+        $this->logger->notice("  - content name : " . $location->getContentInfo()->name);
     }
 
     /**
-     * @param $signal Signal
+     * @param HideLocationEvent|UnhideLocationEvent $event
      */
-    private function logIfDeleteContentSignal($signal)
+    public function logIfVisibilityLocationSignal($event)
     {
-        if ($signal instanceof Signal\ContentService\DeleteContentSignal) {
-            $this->logger->addNotice("Content delete :");
-            $this->logUserInformations();
-            $this->logger->addNotice("  - content id : " . $signal->contentId);
-            $this->logger->addNotice("  - location ids : " . implode(',', $signal->affectedLocationIds));
+        if (!$this->adminLoggerEnabled || !$this->isAdminSiteAccess()) {
+            return;
         }
-    }
-
-    /**
-     * @param $signal Signal
-     * @throws NotFoundException
-     * @throws UnauthorizedException
-     */
-    private function logIfCreateTagSignal($signal)
-    {
-        if ($signal instanceof CreateTagSignal) {
-            $parentTagName = "no parent";
-            if ($signal->parentTagId != 0) {
-                $parentTagName = $this->tagsService->loadTag($signal->parentTagId)->getKeyword();
-            }
-            $this->logger->addNotice("Tag creation :");
-            $this->logUserInformations();
-            $this->logger->addNotice("  - tag id : " . $signal->tagId);
-            $this->logger->addNotice("  - tag name : " . $signal->keywords[$signal->mainLanguageCode]);
-            $this->logger->addNotice("  - tag parent id : " . $signal->parentTagId);
-            $this->logger->addNotice("  - tag parent name : " . $parentTagName);
-        }
-    }
-
-    /**
-     * @param $signal Signal
-     */
-    private function logIfUpdateTagSignal($signal)
-    {
-        if ($signal instanceof UpdateTagSignal) {
-            $this->logger->addNotice("Tag update :");
-            $this->logUserInformations();
-            $this->logger->addNotice("  - tag id : " . $signal->tagId);
-            $this->logger->addNotice("  - new tag name : " . $signal->keywords[$signal->mainLanguageCode]);
-        }
-    }
-
-    /**
-     * @param $signal Signal
-     */
-    private function logIfDeleteTagSignal($signal)
-    {
-        if ($signal instanceof DeleteTagSignal) {
-            $this->logger->addNotice("Tag delete :");
-            $this->logUserInformations();
-            $this->logger->addNotice("  - tag id : " . $signal->tagId);
-        }
-    }
-
-    /**
-     * @param $signal Signal
-     */
-    private function logIfMoveSubtreeSignal($signal)
-    {
-        if ($signal instanceof Signal\LocationService\MoveSubtreeSignal) {
-            $this->logger->addNotice("Location move :");
-            $this->logUserInformations();
-            $this->logger->addNotice("  - location id : " . $signal->locationId);
-
-            // Old parent
-            $this->logger->addNotice("  - old parent location id : " . $signal->oldParentLocationId);
-            try {
-                $oldParentLocation = $this->repository->getLocationService()->loadLocation(
-                    $signal->oldParentLocationId
-                );
-                $this->logger->addNotice(
-                    "  - old parent content name : " . $oldParentLocation->getContent()->getName()
-                );
-            } catch (\Exception $exception) {
-                $this->logger->addError("  - old parent content : not found");
-            }
-
-            // New parent
-            $this->logger->addNotice("  - new parent location id : " . $signal->newParentLocationId);
-            try {
-                $newParentLocation = $this->repository->getLocationService()->loadLocation(
-                    $signal->newParentLocationId
-                );
-                $this->logger->addNotice(
-                    "  - new parent content name : " . $newParentLocation->getContent()->getName()
-                );
-            } catch (\Exception $exception) {
-                $this->logger->addError("  - new parent content : not found");
-            }
-        }
-    }
-
-    /**
-     * @param $signal Signal
-     */
-    private function logIfCopySubtreeSignal($signal)
-    {
-        if ($signal instanceof Signal\LocationService\CopySubtreeSignal) {
-            $this->logger->addNotice("Location copy :");
-            $this->logUserInformations();
-
-            // Original parent
-            $this->logger->addNotice("  - original location id : " . $signal->subtreeId);
-            try {
-                $originalLocation = $this->repository->getLocationService()->loadLocation($signal->subtreeId);
-                $this->logger->addNotice("  - original content name : " . $originalLocation->getContent()->getName());
-            } catch (\Exception $exception) {
-                $this->logger->addError("  - original content : not found");
-            }
-
-            // New Parent
-            $this->logger->addNotice("  - copy's parent location id : " . $signal->targetParentLocationId);
-            try {
-                $newParentLocation = $this->repository->getLocationService()->loadLocation(
-                    $signal->targetParentLocationId
-                );
-                $this->logger->addNotice(
-                    "  - copy's parent content name : " . $newParentLocation->getContent()->getName()
-                );
-            } catch (\Exception $exception) {
-                $this->logger->addError("  - copy's parent content : not found");
-            }
-
-            // New Location
-            $this->logger->addNotice("  - copy's location id : " . $signal->targetNewSubtreeId);
-        }
-    }
-
-    /**
-     * @param $signal Signal
-     */
-    private function logIfCreateLocationSignal($signal)
-    {
-        if ($signal instanceof Signal\LocationService\CreateLocationSignal) {
-            $this->logger->addNotice("Location create :");
-            $this->logUserInformations();
-
-            $this->logger->addNotice("  - location id : " . $signal->locationId);
-            $this->logger->addNotice("  - content id : " . $signal->contentId);
-            try {
-                $content = $this->repository->getContentService()->loadContent($signal->contentId);
-                $this->logger->addNotice("  - content name : " . $content->getName());
-            } catch (\Exception $exception) {
-                $this->logger->addError("  - content : not found");
-            }
-
-            // New Parent
-            $this->logger->addNotice("  - new parent location id : " . $signal->parentLocationId);
-            try {
-                $newParentLocation = $this->repository->getLocationService()->loadLocation($signal->parentLocationId);
-                $this->logger->addNotice(
-                    "  - new parent content name : " . $newParentLocation->getContent()->getName()
-                );
-            } catch (\Exception $exception) {
-                $this->logger->addError("  - new parent content : not found");
-            }
-        }
-    }
-
-    /**
-     * @param $signal Signal
-     */
-    private function logIfDeleteLocationSignal($signal)
-    {
-        if ($signal instanceof Signal\LocationService\DeleteLocationSignal) {
-            $this->logger->addNotice("Location delete :");
-            $this->logUserInformations();
-            $this->logger->addNotice("  - location id : " . $signal->locationId);
-            $this->logger->addNotice("  - parent location id : " . $signal->parentLocationId);
-            $this->logger->addNotice("  - content id : " . $signal->contentId);
-            try {
-                $content = $this->repository->getContentService()->loadContent($signal->contentId);
-                $this->logger->addNotice("  - content name : " . $content->getName());
-            } catch (\Exception $exception) {
-                $this->logger->addNotice("  - content : not found, may be it was the latest location ?");
-            }
-        }
-    }
-
-    /**
-     * @param $signal Signal
-     */
-    private function logIfVisibilityLocationSignal($signal)
-    {
         $actionName = null;
-        if ($signal instanceof Signal\LocationService\HideLocationSignal) {
+        if ($event instanceof HideLocationEvent) {
             $actionName = "hide";
-        }
-        if ($signal instanceof Signal\LocationService\UnhideLocationSignal) {
+        } elseif ($event instanceof UnhideLocationEvent) {
             $actionName = "unhide";
         }
+
         if (!is_null($actionName)) {
-            $this->logger->addNotice("Location $actionName :");
+            $location = $event->getLocation();
+            $this->logger->notice("Location $actionName :");
             $this->logUserInformations();
-            $this->logger->addNotice("  - location id : " . $signal->locationId);
-            $this->logger->addNotice("  - parent location id : " . $signal->parentLocationId);
-            $this->logger->addNotice("  - content id : " . $signal->contentId);
-            try {
-                $content = $this->repository->getContentService()->loadContent($signal->contentId);
-                $this->logger->addNotice("  - content name : " . $content->getName());
-            } catch (\Exception $exception) {
-                $this->logger->addError("  - content : not found");
+            if (empty($location)) {
+                $this->logger->error("  - location : not found");
+                return;
             }
+            $this->logger->notice("  - location id : " . $location->id);
+            $this->logger->notice("  - parent location id : " . $location->parentLocationId);
+            $this->logger->notice("  - content id : " . $location->contentId);
+            $this->logger->notice("  - content name : " . $location->getContentInfo()->name);
         }
     }
 
     /**
-     * @param $signal Signal
+     * @param HideContentEvent|RevealContentEvent $event
      */
-    private function logIfVisibilityContentSignal($signal)
+    public function logIfVisibilityContentSignal($event)
     {
+        $action = null;
+        if ($event instanceof RevealContentEvent) {
+            $action = 'unhide';
+        } elseif ($event instanceof HideContentEvent) {
+            $action = 'Hide';
+        }
+
+        if (!$this->adminLoggerEnabled || !$this->isAdminSiteAccess() || $action === null) {
+            return;
+        }
+        $contentInfo = $event->getContentInfo();
+        $this->logger->notice("$action Content:");
+        if(empty($contentInfo)) {
+            $this->logger->notice("  - content : not found");
+            return;
+        }
+
+        $this->logUserInformations();
+        $this->logger->notice("  - content id : " . $contentInfo->id);
+        $this->logger->notice("  - content name : " . $contentInfo->name);
+        $this->logger->notice("  - content main location id: " . $contentInfo->mainLocationId);
+        $this->logger->notice("  - content version : " . $contentInfo->currentVersionNo);
+    }
+
+    /**
+     * @param CreateUserEvent|UpdateUserEvent|DeleteUserEvent $event
+     */
+    public function logIfUserSignal($event)
+    {
+        if (!$this->adminLoggerEnabled || !$this->isAdminSiteAccess()) {
+            return;
+        }
         $actionName = null;
-        if ($signal instanceof Signal\ContentService\HideContentSignal) {
-            $actionName = "hide";
-        }
-        if ($signal instanceof Signal\ContentService\RevealContentSignal) {
-            $actionName = "unhide";
-        }
-        if (!is_null($actionName)) {
-            $this->logger->addNotice("Content $actionName :");
-            $this->logUserInformations();
-            $this->logger->addNotice("  - content id : " . $signal->contentId);
-            try {
-                $content = $this->repository->getContentService()->loadContent($signal->contentId);
-                $this->logger->addNotice("  - content name : " . $content->getName());
-            } catch (\Exception $exception) {
-                $this->logger->addError("  - content : not found");
-            }
-        }
-    }
-
-    /**
-     * @param $signal Signal
-     */
-    private function logIfUserSignal($signal)
-    {
-        $actionName = null;
-        $actionName = $signal instanceof Signal\UserService\UpdateUserSignal ? "update" : $actionName;
-        $actionName = $signal instanceof Signal\UserService\CreateUserSignal ? "creation" : $actionName;
-        $actionName = $signal instanceof Signal\UserService\DeleteUserSignal ? "delete" : $actionName;
+        $actionName = $event instanceof UpdateUserEvent ? "update" : $actionName;
+        $actionName = $event instanceof CreateUserEvent ? "creation" : $actionName;
+        $actionName = $event instanceof DeleteUserEvent ? "delete" : $actionName;
 
         if (!is_null($actionName)) {
-            $this->logger->addNotice("User $actionName :");
+            $user = $event->getUser();
+            $this->logger->notice("User $actionName :");
             $this->logUserInformations();
-            $this->logger->addNotice("  - user id : " . $signal->userId);
-            try {
-                $user = $this->repository->getUserService()->loadUser($signal->userId);
-                $this->logger->addNotice("  - user name : " . $user->getName());
-            } catch (\Exception $exception) {
-                if (!$signal instanceof Signal\UserService\DeleteUserSignal) {
-                    $this->logger->addError("  - content : not found");
-                }
+            if (empty($user)) {
+                $this->logger->error("  - user : not found");
+                return;
             }
+            $this->logger->notice("  - user id : " . $user->id);
+            $this->logger->notice("  - user name : " . $user->getName());
         }
     }
 
     /**
-     * @param $signal Signal
+     * @param TrashEvent $trashEvent
      */
-    private function logIfTrashSignal($signal)
+    public function logIfTrashSignal(TrashEvent $trashEvent)
     {
-        if ($signal instanceof Signal\TrashService\TrashSignal) {
-            $this->logger->addNotice("Trash :");
-            $this->logUserInformations();
-            $this->logger->addNotice("  - content id : " . $signal->contentId);
-            try {
-                $content = $this->repository->getContentService()->loadContent($signal->contentId);
-                $this->logger->addNotice("  - content name : " . $content->getName());
-            } catch (\Exception $exception) {
-                $this->logger->addNotice("  - content : not found, may be it was the latest location ?");
-            }
-            $this->logger->addNotice("  - content trashed : " . (int)$signal->contentTrashed);
-            $this->logger->addNotice("  - location id : " . $signal->locationId);
-            $this->logger->addNotice("  - parent location id : " . $signal->parentLocationId);
-            try {
-                $location = $this->repository->getLocationService()->loadLocation($signal->parentLocationId);
-                $this->logger->addNotice("  - parent content name : " . $location->getContent()->getName());
-            } catch (\Exception $exception) {
-                $this->logger->addError("  - parent content : not found");
-            }
+        if (!$this->adminLoggerEnabled || !$this->isAdminSiteAccess()) {
+            return;
         }
-    }
+        $content = $trashEvent->getTrashItem() ? $trashEvent->getTrashItem()->getContent() : null;
+        $locationId = $trashEvent->getTrashItem() ? $trashEvent->getTrashItem()->id  : null;
+        $parentLocation = $trashEvent->getTrashItem() ? $trashEvent->getTrashItem()->getParentLocation(): null;
+        $this->logger->notice("Move to Trash :");
+        $this->logUserInformations();
 
-    /**
-     * @param $signal Signal
-     */
-    private function logIfAssignSectionSignal($signal)
-    {
-        if ($signal instanceof Signal\SectionService\AssignSectionToSubtreeSignal) {
-            $this->logger->addNotice("Assign section :");
-            $this->logUserInformations();
-            $this->logger->addNotice("  - location id : " . $signal->locationId);
-            try {
-                $location = $this->repository->getLocationService()->loadLocation($signal->locationId);
-                $this->logger->addNotice("  - location name : " . $location->getContent()->getName());
-            } catch (\Exception $exception) {
-                $this->logger->addError("  - location not found");
-            }
-
-            $this->logger->addNotice("  - section id : " . $signal->sectionId);
-            try {
-                $section = $this->repository->getSectionService()->loadSection($signal->sectionId);
-                $this->logger->addNotice("  - section name : " . $section->name);
-            } catch (\Exception $exception) {
-                $this->logger->addError("  - section not found");
-            }
+        if (empty($content)) {
+            $this->logger->error("  - content : not found, may be it was the latest location ?");
+            return;
         }
-    }
 
-    /**
-     * @param $signal Signal
-     */
-    private function logIfSetContentStateSignal($signal)
-    {
-        if ($signal instanceof Signal\ObjectStateService\SetContentStateSignal) {
-            $this->logger->addNotice("Change object state :");
-            $this->logUserInformations();
-            $this->logger->addNotice("  - content id : " . $signal->contentId);
-            // Content
-            try {
-                $content = $this->repository->getContentService()->loadContent($signal->contentId);
-                $this->logger->addNotice("  - content name : " . $content->getName());
-            } catch (\Exception $exception) {
-                $this->logger->addError("  - content not found");
-            }
-            // Object state group
-            $this->logger->addNotice("  - object state group id : " . $signal->objectStateGroupId);
-            try {
-                $objectStateGroup = $this->repository->getObjectStateService()->loadObjectStateGroup(
-                    $signal->objectStateGroupId
-                );
-                $this->logger->addNotice("  - object state group name : " . $objectStateGroup->getName());
-            } catch (\Exception $exception) {
-                $this->logger->addError("  - object state not found");
-            }
-            // Object state
-            $this->logger->addNotice("  - object state id : " . $signal->objectStateId);
-            try {
-                $objectState = $this->repository->getObjectStateService()->loadObjectState($signal->objectStateId);
-                $this->logger->addNotice("  - object state name : " . $objectState->getName());
-            } catch (\Exception $exception) {
-                $this->logger->addError("  - object state not found");
-            }
+        $this->logger->notice("  - content id : " . $content->id);
+        $this->logger->notice("  - content name : " . $content->getName());
+        $this->logger->notice("  - content trashed : " . (int)$content->id);
+        $this->logger->notice("  - location id : " . $locationId);
+        if($parentLocation) {
+            $this->logger->notice("  - parent location id : " .  $parentLocation->id);
+            $this->logger->notice("  - parent content name : " . $parentLocation->getContentInfo()->name);
+        } else {
+            $this->logger->error("  - parent content : not found");
         }
     }
 
     /**
      * Log connected user informations
      */
-    private function logUserInformations(): void
+    public function logUserInformations(): void
     {
         /** @var UserInterface $user */
         $user = $this->tokenStorage->getToken()->getUser();
 
-        $this->logger->addNotice("  - IP : " . implode(',', $this->request->getClientIps()));
-        $this->logger->addNotice(
+        $this->logger->notice("  - IP : " . implode(',', $this->request->getClientIps()));
+        $this->logger->notice(
             sprintf(
                 "  - user name : %s [contentId=%s]",
                 $user->getUsername(),
