@@ -6,6 +6,8 @@ services:
         bind:
             $logDir: "%kernel.logs_dir%"
             $adminLoggerEnabled: "%sqli_ez_toolbox.admin_logger.enabled%"
+            $tagsService: '@eztags.api.service.tags.inner'
+
 
     eZ\Publish\Core\Helper\TranslationHelper: '@ezpublish.translation_helper'
     eZ\Publish\Core\Helper\FieldHelper: '@ezpublish.field_helper'
