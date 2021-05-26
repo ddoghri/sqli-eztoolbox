@@ -4,7 +4,7 @@
 
 {% block breadcrumbs %}
     {% set keytrad = constant('SQLI\\EzToolboxBundle\\Menu\\MenuListener::SQLI_ADMIN_MENU_ENTITIES_TAB_PREFIX') ~ class.annotation.tabname %}
-    {% include '@ezdesign/ui/breadcrumbs.html.twig' with { items: [
+    {% include '@ezdesign/ui/breadcrumbs.html.twig' with {class:'', items: [
         { value: 'breadcrumb.admin'|trans(domain='messages')|desc('Admin') },
         { value: keytrad|trans( {}, 'sqli_admin' )|desc('Entities'),
             url: path( 'sqli_eztoolbox_entitymanager_homepage', { 'tabname': class.annotation.tabname } ) },
